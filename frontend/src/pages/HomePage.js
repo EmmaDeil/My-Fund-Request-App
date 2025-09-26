@@ -147,7 +147,7 @@ const HomePage = () => {
           style={{ color: "#7f8c8d", fontSize: "0.9rem" }}
         >
           <p>
-            © 2025 Fund Request System. All requests are processed securely.
+            © {new Date().getFullYear()} Fund Request System. All requests are processed securely.
           </p>
           <p>
             Questions? Contact your system administrator or

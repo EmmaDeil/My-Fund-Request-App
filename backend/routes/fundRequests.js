@@ -8,6 +8,7 @@ const router = express.Router();
 // Create a new fund request
 router.post("/", async (req, res) => {
   try {
+    console.log("🚀 POST /fund-requests - Request received");
     console.log(
       `📝 New fund request received from: ${req.body.requester_email}`
     );
@@ -26,6 +27,8 @@ router.post("/", async (req, res) => {
       urgent,
     } = req.body;
 
+    console.log("✅ Request data extracted successfully");
+
     // Validation
     if (
       !requester_name ||
@@ -34,6 +37,7 @@ router.post("/", async (req, res) => {
       !purpose ||
       !approver_email
     ) {
+      console.log("❌ Validation failed - missing required fields");
       return res.status(400).json({
         error: "Missing required fields",
         required: [
@@ -45,6 +49,8 @@ router.post("/", async (req, res) => {
         ],
       });
     }
+
+    console.log("✅ Validation passed");
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -87,9 +93,12 @@ router.post("/", async (req, res) => {
     };
 
     // Save to database first
+    console.log("💾 Attempting to save to database...");
     await db.createFundRequest(requestData);
+    console.log("✅ Successfully saved to database");
 
     // Send emails with timeout to prevent hanging
+    console.log("📧 Starting email sending process...");
     const sendEmailsWithTimeout = async () => {
       const EMAIL_TIMEOUT = 15000; // 15 seconds timeout
       
