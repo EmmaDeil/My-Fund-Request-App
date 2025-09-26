@@ -3,16 +3,18 @@ import axios from "axios";
 // Configure base URL for API calls with fallback logic
 const getAPIBaseURL = () => {
   // Check if we're in production
-  const isProduction = 
-    window.location.hostname !== 'localhost' && 
-    window.location.hostname !== '127.0.0.1';
+  const isProduction =
+    window.location.hostname !== "localhost" &&
+    window.location.hostname !== "127.0.0.1";
 
   if (isProduction) {
     // In production, use the production backend URL
-    return process.env.REACT_APP_API_URL || 'https://backend-o0ll.onrender.com/api';
+    return (
+      process.env.REACT_APP_API_URL || "https://backend-o0ll.onrender.com/api"
+    );
   } else {
     // In development, use localhost
-    return process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+    return process.env.REACT_APP_API_URL || "http://localhost:5000/api";
   }
 };
 
