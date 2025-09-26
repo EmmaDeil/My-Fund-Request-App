@@ -4,6 +4,15 @@ import axios from "axios";
 const API_BASE_URL =
   process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
+// Debug logging for environment detection
+console.log(
+  `🌍 Frontend Environment: ${process.env.REACT_APP_ENV || "development"}`
+);
+console.log(`🔗 API Base URL: ${API_BASE_URL}`);
+console.log(
+  `🔑 API URL from env: ${process.env.REACT_APP_API_URL || "not set"}`
+);
+
 // Create axios instance with default configuration
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -33,6 +42,12 @@ api.interceptors.response.use(
   },
   (error) => {
     console.error("API Response Error:", error.response?.data || error.message);
+    console.error("Full error details:", {
+      status: error.response?.status,
+      url: error.config?.url,
+      method: error.config?.method,
+      baseURL: error.config?.baseURL,
+    });
 
     // Handle network errors
     if (error.code === "ECONNABORTED") {
@@ -40,6 +55,10 @@ api.interceptors.response.use(
     }
 
     if (!error.response) {
+      console.error(
+        "Network error occurred - checking connection to:",
+        API_BASE_URL
+      );
       throw new Error("Network error - please check your connection");
     }
 

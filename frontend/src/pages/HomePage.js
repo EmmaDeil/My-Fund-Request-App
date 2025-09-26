@@ -15,7 +15,9 @@ const HomePage = () => {
       <div className="container">
         {/* Header */}
         <div className="text-center mb-3">
-          <h1>💰 Fund Request System</h1>
+          <h1><img src="/logo.png" alt="Logo" style={{ height: "40px" }} />{" "}
+            Fund Request System
+          </h1>
           <p
             style={{
               fontSize: "1.1rem",
@@ -153,7 +155,7 @@ const HomePage = () => {
               href="mailto:support@company.com"
               style={{ color: "#3498db", marginLeft: "5px" }}
             >
-              support@company.com
+              eclefzy@gmail.com
             </a>
           </p>
         </div>

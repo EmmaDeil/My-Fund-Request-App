@@ -5,6 +5,9 @@ const bodyParser = require("body-parser");
 // Load environment-specific configuration
 const env = process.env.NODE_ENV || "development";
 console.log(`🌍 Loading ${env} environment configuration...`);
+console.log(
+  `🔧 Detected PORT: ${process.env.PORT || "not set, using fallback"}`
+);
 
 // Load the appropriate .env file
 if (env === "production") {
@@ -16,7 +19,9 @@ if (env === "production") {
 require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+// Use PORT from environment with multiple fallbacks for maximum compatibility
+const PORT =
+  process.env.PORT || process.env.port || process.env.SERVER_PORT || 5000;
 
 // Environment-aware CORS configuration
 const corsOptions = {
@@ -83,11 +88,29 @@ app.use("*", (req, res) => {
   res.status(404).json({ error: "Route not found" });
 });
 
-// Start server
-app.listen(PORT, () => {
+// Start server with enhanced compatibility
+const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server is running on port ${PORT}`);
   console.log(`📧 Email service configured for: ${process.env.EMAIL_HOST}`);
   console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL}`);
+  console.log(`🏠 Environment: ${process.env.NODE_ENV || "development"}`);
+});
+
+// Handle server shutdown gracefully
+process.on("SIGTERM", () => {
+  console.log("👋 SIGTERM received, shutting down gracefully...");
+  server.close(() => {
+    console.log("✅ Server closed successfully");
+    process.exit(0);
+  });
+});
+
+process.on("SIGINT", () => {
+  console.log("👋 SIGINT received, shutting down gracefully...");
+  server.close(() => {
+    console.log("✅ Server closed successfully");
+    process.exit(0);
+  });
 });
 
 module.exports = app;

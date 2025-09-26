@@ -8,6 +8,11 @@ const router = express.Router();
 // Create a new fund request
 router.post("/", async (req, res) => {
   try {
+    console.log(
+      `📝 New fund request received from: ${req.body.requester_email}`
+    );
+    console.log(`💰 Amount: ${req.body.amount} ${req.body.currency || "USD"}`);
+
     const {
       requester_name,
       requester_email,
