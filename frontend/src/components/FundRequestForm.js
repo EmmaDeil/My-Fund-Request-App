@@ -6,7 +6,7 @@ const FundRequestForm = ({ onSubmissionSuccess }) => {
     requester_name: "",
     requester_email: "",
     amount: "",
-    currency: "USD",
+    currency: "NGN",
     purpose: "",
     description: "",
     approver_email: "",
@@ -163,7 +163,7 @@ const FundRequestForm = ({ onSubmissionSuccess }) => {
         requester_name: "",
         requester_email: "",
         amount: "",
-        currency: "USD",
+        currency: "NGN",
         purpose: "",
         description: "",
         approver_email: "",
@@ -355,9 +355,10 @@ const FundRequestForm = ({ onSubmissionSuccess }) => {
                 className="form-control"
                 disabled={isSubmitting}
               >
-                <option value="USD">USD ($)</option>
+               <option value="NGN">NGN (₦)</option>
+                {/* <option value="USD">USD ($)</option> */}
                 <option value="EUR">EUR (€)</option>
-                <option value="GBP">GBP (£)</option>
+                {/* <option value="GBP">GBP (£)</option> */}
                 <option value="CAD">CAD (C$)</option>
               </select>
             </div>
