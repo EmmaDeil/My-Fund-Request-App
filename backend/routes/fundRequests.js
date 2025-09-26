@@ -86,34 +86,60 @@ router.post("/", async (req, res) => {
       urgent: Boolean(urgent),
     };
 
-    // Save to database
+    // Save to database first
     await db.createFundRequest(requestData);
 
-    // Send both emails - approval email to approver and confirmation email to requester
+    // Send emails with timeout to prevent hanging
+    const sendEmailsWithTimeout = async () => {
+      const EMAIL_TIMEOUT = 15000; // 15 seconds timeout
+      
+      const sendEmailWithTimeout = (emailPromise, timeoutMs) => {
+        return Promise.race([
+          emailPromise,
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Email timeout')), timeoutMs)
+          )
+        ]);
+      };
+
+      const emailPromises = [
+        sendEmailWithTimeout(emailService.sendApprovalEmail(requestData), EMAIL_TIMEOUT)
+          .then(() => ({ type: 'approval', success: true }))
+          .catch(error => ({ type: 'approval', success: false, error: error.message })),
+        
+        sendEmailWithTimeout(emailService.sendConfirmationEmail(requestData), EMAIL_TIMEOUT)
+          .then(() => ({ type: 'confirmation', success: true }))
+          .catch(error => ({ type: 'confirmation', success: false, error: error.message }))
+      ];
+
+      return Promise.allSettled(emailPromises);
+    };
+
+    // Send emails but don't wait too long
     let approvalEmailSent = false;
     let confirmationEmailSent = false;
     let emailErrors = [];
 
     try {
-      // Send approval email to approver
-      await emailService.sendApprovalEmail(requestData);
-      approvalEmailSent = true;
-      console.log(`✅ Approval email sent to: ${requestData.approver_email}`);
-    } catch (emailError) {
-      console.error("Failed to send approval email:", emailError);
-      emailErrors.push(`Approval email failed: ${emailError.message}`);
-    }
-
-    try {
-      // Send confirmation email to requester
-      await emailService.sendConfirmationEmail(requestData);
-      confirmationEmailSent = true;
-      console.log(
-        `✅ Confirmation email sent to: ${requestData.requester_email}`
-      );
-    } catch (emailError) {
-      console.error("Failed to send confirmation email:", emailError);
-      emailErrors.push(`Confirmation email failed: ${emailError.message}`);
+      const emailResults = await sendEmailsWithTimeout();
+      
+      emailResults.forEach(result => {
+        if (result.status === 'fulfilled') {
+          const { type, success, error } = result.value;
+          if (type === 'approval') {
+            approvalEmailSent = success;
+            if (!success) emailErrors.push(`Approval email failed: ${error}`);
+            else console.log(`✅ Approval email sent to: ${requestData.approver_email}`);
+          } else if (type === 'confirmation') {
+            confirmationEmailSent = success;
+            if (!success) emailErrors.push(`Confirmation email failed: ${error}`);
+            else console.log(`✅ Confirmation email sent to: ${requestData.requester_email}`);
+          }
+        }
+      });
+    } catch (error) {
+      console.error("Email sending failed:", error);
+      emailErrors.push(`Email system error: ${error.message}`);
     }
 
     // Determine response based on email success
