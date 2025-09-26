@@ -24,11 +24,13 @@ const PORT =
   process.env.PORT || process.env.port || process.env.SERVER_PORT || 5000;
 
 // Environment-aware CORS configuration
-const frontendURL = (process.env.FRONTEND_URL || "http://localhost:3000").replace(/\/$/, '');
+const frontendURL = (
+  process.env.FRONTEND_URL || "http://localhost:3000"
+).replace(/\/$/, "");
 const corsOptions = {
   origin: [
     frontendURL,
-    `${frontendURL}/`,  // Handle trailing slash variations
+    `${frontendURL}/`, // Handle trailing slash variations
     "http://localhost:3000",
     "http://localhost:3000/",
   ],
