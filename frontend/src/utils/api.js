@@ -1,13 +1,28 @@
 import axios from "axios";
 
-// Configure base URL for API calls
-const API_BASE_URL =
-  process.env.REACT_APP_API_URL || "https://my-fund-request-app.onrender.com";
+// Configure base URL for API calls with fallback logic
+const getAPIBaseURL = () => {
+  // Check if we're in production
+  const isProduction = 
+    window.location.hostname !== 'localhost' && 
+    window.location.hostname !== '127.0.0.1';
+
+  if (isProduction) {
+    // In production, use the production backend URL
+    return process.env.REACT_APP_API_URL || 'https://backend-o0ll.onrender.com/api';
+  } else {
+    // In development, use localhost
+    return process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  }
+};
+
+const API_BASE_URL = getAPIBaseURL();
 
 // Debug logging for environment detection
 console.log(
   `🌍 Frontend Environment: ${process.env.REACT_APP_ENV || "development"}`
 );
+console.log(`🏠 Hostname: ${window.location.hostname}`);
 console.log(`🔗 API Base URL: ${API_BASE_URL}`);
 console.log(
   `🔑 API URL from env: ${process.env.REACT_APP_API_URL || "not set"}`
