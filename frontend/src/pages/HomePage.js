@@ -58,7 +58,7 @@ const HomePage = () => {
 
         {/* How it Works */}
         <div className="card mb-3">
-          <h3>📋 How It Works</h3>
+          <h3 style={{ textAlign: "center" }}>📋 How It Works</h3>
           <div className="row">
             <div className="col-2">
               <div style={{ textAlign: "center", padding: "20px" }}>

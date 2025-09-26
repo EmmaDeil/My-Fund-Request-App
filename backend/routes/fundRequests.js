@@ -101,24 +101,38 @@ router.post("/", async (req, res) => {
     console.log("📧 Starting email sending process...");
     const sendEmailsWithTimeout = async () => {
       const EMAIL_TIMEOUT = 15000; // 15 seconds timeout
-      
+
       const sendEmailWithTimeout = (emailPromise, timeoutMs) => {
         return Promise.race([
           emailPromise,
-          new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Email timeout')), timeoutMs)
-          )
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Email timeout")), timeoutMs)
+          ),
         ]);
       };
 
       const emailPromises = [
-        sendEmailWithTimeout(emailService.sendApprovalEmail(requestData), EMAIL_TIMEOUT)
-          .then(() => ({ type: 'approval', success: true }))
-          .catch(error => ({ type: 'approval', success: false, error: error.message })),
-        
-        sendEmailWithTimeout(emailService.sendConfirmationEmail(requestData), EMAIL_TIMEOUT)
-          .then(() => ({ type: 'confirmation', success: true }))
-          .catch(error => ({ type: 'confirmation', success: false, error: error.message }))
+        sendEmailWithTimeout(
+          emailService.sendApprovalEmail(requestData),
+          EMAIL_TIMEOUT
+        )
+          .then(() => ({ type: "approval", success: true }))
+          .catch((error) => ({
+            type: "approval",
+            success: false,
+            error: error.message,
+          })),
+
+        sendEmailWithTimeout(
+          emailService.sendConfirmationEmail(requestData),
+          EMAIL_TIMEOUT
+        )
+          .then(() => ({ type: "confirmation", success: true }))
+          .catch((error) => ({
+            type: "confirmation",
+            success: false,
+            error: error.message,
+          })),
       ];
 
       return Promise.allSettled(emailPromises);
@@ -131,18 +145,25 @@ router.post("/", async (req, res) => {
 
     try {
       const emailResults = await sendEmailsWithTimeout();
-      
-      emailResults.forEach(result => {
-        if (result.status === 'fulfilled') {
+
+      emailResults.forEach((result) => {
+        if (result.status === "fulfilled") {
           const { type, success, error } = result.value;
-          if (type === 'approval') {
+          if (type === "approval") {
             approvalEmailSent = success;
             if (!success) emailErrors.push(`Approval email failed: ${error}`);
-            else console.log(`✅ Approval email sent to: ${requestData.approver_email}`);
-          } else if (type === 'confirmation') {
+            else
+              console.log(
+                `✅ Approval email sent to: ${requestData.approver_email}`
+              );
+          } else if (type === "confirmation") {
             confirmationEmailSent = success;
-            if (!success) emailErrors.push(`Confirmation email failed: ${error}`);
-            else console.log(`✅ Confirmation email sent to: ${requestData.requester_email}`);
+            if (!success)
+              emailErrors.push(`Confirmation email failed: ${error}`);
+            else
+              console.log(
+                `✅ Confirmation email sent to: ${requestData.requester_email}`
+              );
           }
         }
       });
