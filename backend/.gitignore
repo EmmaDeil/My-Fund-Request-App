@@ -8,9 +8,7 @@
 # Environment files with sensitive data
 .env
 .env.local
-.env.development
-.env.production
-.env.*.local
+
 
 # Keep template files for team sharing
 # .env.example should NOT be ignored
