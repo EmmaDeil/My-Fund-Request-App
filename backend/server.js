@@ -1,18 +1,33 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+
+// Load environment-specific configuration
+const env = process.env.NODE_ENV || "development";
+console.log(`🌍 Loading ${env} environment configuration...`);
+
+// Load the appropriate .env file
+if (env === "production") {
+  require("dotenv").config({ path: ".env.production" });
+} else if (env === "development") {
+  require("dotenv").config({ path: ".env.development" });
+}
+// Fallback to default .env file
 require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Simple CORS for local development
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-    credentials: true,
-  })
-);
+// Environment-aware CORS configuration
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+console.log(`🌐 CORS configured for: ${corsOptions.origin}`);
+app.use(cors(corsOptions));
 
 // Body parsing middleware
 app.use(bodyParser.json());

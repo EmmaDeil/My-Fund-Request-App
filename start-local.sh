@@ -6,6 +6,9 @@
 echo "🚀 Starting Fund Request App for Local Development"
 echo "================================================"
 
+# Set development environment
+export NODE_ENV=development
+
 # Check if Node.js is installed
 if ! command -v node &> /dev/null; then
     echo "❌ Node.js is not installed. Please install Node.js first."
@@ -15,8 +18,8 @@ fi
 # Check if MongoDB is running (optional)
 echo "📋 Checking system requirements..."
 
-# Start Backend
-echo "🔧 Starting Backend Server..."
+# Start Backend in Development Mode
+echo "🔧 Starting Backend Server (Development Mode)..."
 cd backend
 if [ ! -d "node_modules" ]; then
     echo "📦 Installing backend dependencies..."
@@ -31,15 +34,15 @@ if [ ! -f ".env" ]; then
 fi
 
 # Start backend in background
-npm start &
+NODE_ENV=development npm run dev &
 BACKEND_PID=$!
 cd ..
 
 # Wait a moment for backend to start
 sleep 3
 
-# Start Frontend
-echo "⚛️  Starting Frontend Server..."
+# Start Frontend in Development Mode
+echo "⚛️  Starting Frontend Server (Development Mode)..."
 cd frontend
 if [ ! -d "node_modules" ]; then
     echo "📦 Installing frontend dependencies..."
@@ -54,12 +57,12 @@ cd ..
 echo ""
 echo "✅ Local Development Servers Started!"
 echo "================================================"
-echo "🔧 Backend:  http://localhost:5000"
-echo "⚛️  Frontend: http://localhost:3000"
+echo "🔧 Backend:  http://localhost:5000 (Development)"
+echo "⚛️  Frontend: http://localhost:3000 (Development)"
 echo "📊 API:      http://localhost:5000/api/health"
 echo ""
 echo "📝 To stop servers: Ctrl+C or run 'killall node'"
-echo "💾 Make sure MongoDB is running locally"
+echo "💾 Make sure MongoDB is running locally or Atlas is accessible"
 echo ""
 
 # Wait for user to stop
