@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { approvalAPI } from "../utils/api";
 
@@ -16,11 +16,7 @@ const ApprovalPage = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
 
-  useEffect(() => {
-    loadRequestDetails();
-  }, [token]);
-
-  const loadRequestDetails = async () => {
+  const loadRequestDetails = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -33,7 +29,11 @@ const ApprovalPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    loadRequestDetails();
+  }, [loadRequestDetails]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
