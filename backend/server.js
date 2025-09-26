@@ -79,19 +79,6 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// Debug endpoint to check environment variables (remove in production)
-app.get("/api/debug/env", (req, res) => {
-  res.json({
-    NODE_ENV: process.env.NODE_ENV,
-    EMAIL_HOST: process.env.EMAIL_HOST,
-    EMAIL_PORT: process.env.EMAIL_PORT,
-    EMAIL_USER: process.env.EMAIL_USER,
-    EMAIL_PASS: process.env.EMAIL_PASS ? "***SET***" : "NOT SET",
-    FRONTEND_URL: process.env.FRONTEND_URL,
-    MONGODB_URI: process.env.MONGODB_URI ? "***SET***" : "NOT SET",
-  });
-});
-
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);

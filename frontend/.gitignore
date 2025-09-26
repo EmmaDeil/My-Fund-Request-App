@@ -4,15 +4,17 @@
 /node_modules
 /.pnp
 .pnp.js
+
 # Environment files with sensitive data
 .env
-
 
 # Keep template files for team sharing
 # .env.example should NOT be ignored
 
 # testing
 /coverage
+*.test.js
+jest-results.json
 
 # production
 /build
@@ -27,3 +29,10 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# React specific
+.eslintcache
+
+# temporary files
+*.tmp
+*.temp
