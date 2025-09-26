@@ -24,14 +24,20 @@ const PORT =
   process.env.PORT || process.env.port || process.env.SERVER_PORT || 5000;
 
 // Environment-aware CORS configuration
+const frontendURL = (process.env.FRONTEND_URL || "http://localhost:3000").replace(/\/$/, '');
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  origin: [
+    frontendURL,
+    `${frontendURL}/`,  // Handle trailing slash variations
+    "http://localhost:3000",
+    "http://localhost:3000/",
+  ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
-console.log(`🌐 CORS configured for: ${corsOptions.origin}`);
+console.log(`🌐 CORS configured for: ${frontendURL} (and variants)`);
 app.use(cors(corsOptions));
 
 // Body parsing middleware
