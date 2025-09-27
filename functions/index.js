@@ -7,7 +7,7 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-const { setGlobalOptions } = require("firebase-functions");
+const {setGlobalOptions} = require("firebase-functions");
 
 // For cost control, you can set the maximum number of containers that can be
 // running at the same time. This helps mitigate the impact of unexpected
@@ -19,7 +19,7 @@ const { setGlobalOptions } = require("firebase-functions");
 // functions should each use functions.runWith({ maxInstances: 10 }) instead.
 // In the v1 API, each function can only serve one request per container, so
 // this will be the maximum concurrent request count.
-setGlobalOptions({ maxInstances: 10 });
+setGlobalOptions({maxInstances: 10});
 
 const functions = require("firebase-functions");
 const express = require("express");
@@ -56,7 +56,7 @@ app.use(cors(corsOptions));
 
 // Body parsing middleware
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 
 // Initialize database
 const db = require("./models/mongoDatabase");
@@ -114,7 +114,7 @@ app.use((err, req, res, next) => {
 
 // 404 handler
 app.use("*", (req, res) => {
-  res.status(404).json({ error: "Route not found" });
+  res.status(404).json({error: "Route not found"});
 });
 
 // Export the Express app as a Firebase Function

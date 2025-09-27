@@ -1,0 +1,25 @@
+{
+  "name": "myfundrequestapp",
+  "version": "1.0.0",
+  "description": "This is a simplified Fund Request application designed for local development.",
+  "main": "test-email-api.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EmmaDeil/My-Fund-Request-App.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/EmmaDeil/My-Fund-Request-App/issues"
+  },
+  "homepage": "https://github.com/EmmaDeil/My-Fund-Request-App#readme",
+  "dependencies": {
+    "dotenv": "^17.2.2",
+    "nodemailer": "^7.0.6"
+  }
+}

@@ -128,7 +128,7 @@ const FundRequestForm = ({ onSubmissionSuccess }) => {
       const result = await fundRequestAPI.create(submitData);
 
       // Create success message based on email status
-      let successMessage = "Fund request submitted successfully!";
+      let successMessage = "🎉 Request Submitted Successfully!";
       let emailDetails = [];
 
       if (result.approvalEmailSent && result.confirmationEmailSent) {
@@ -208,54 +208,6 @@ const FundRequestForm = ({ onSubmissionSuccess }) => {
           to the approver once submitted.
         </p>
       </div>
-
-      {submitStatus && (
-        <div
-          className={`alert ${
-            submitStatus.type === "success"
-              ? "alert-success"
-              : submitStatus.type === "warning"
-              ? "alert-warning"
-              : "alert-error"
-          }`}
-        >
-          <span>
-            {submitStatus.type === "success"
-              ? "✅"
-              : submitStatus.type === "warning"
-              ? "⚠️"
-              : "❌"}
-          </span>
-          <div>
-            <strong>{submitStatus.message}</strong>
-            {submitStatus.requestId && (
-              <div className="mt-1">
-                <small>Request ID: {submitStatus.requestId}</small>
-              </div>
-            )}
-            {submitStatus.emailDetails &&
-              submitStatus.emailDetails.length > 0 && (
-                <div className="mt-2">
-                  <div style={{ fontSize: "0.9em" }}>
-                    {submitStatus.emailDetails.map((detail, index) => (
-                      <div key={index} style={{ marginBottom: "4px" }}>
-                        {detail}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            {submitStatus.warning && (
-              <div
-                className="mt-2"
-                style={{ fontSize: "0.9em", color: "#856404" }}
-              >
-                <strong>Note:</strong> {submitStatus.warning}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       <form onSubmit={handleSubmit}>
         <div className="row">
@@ -355,7 +307,7 @@ const FundRequestForm = ({ onSubmissionSuccess }) => {
                 className="form-control"
                 disabled={isSubmitting}
               >
-               <option value="NGN">NGN (₦)</option>
+                <option value="NGN">NGN (₦)</option>
                 {/* <option value="USD">USD ($)</option> */}
                 <option value="EUR">EUR (€)</option>
                 {/* <option value="GBP">GBP (£)</option> */}
@@ -517,6 +469,54 @@ const FundRequestForm = ({ onSubmissionSuccess }) => {
           </button>
         </div>
       </form>
+
+      {submitStatus && (
+        <div
+          className={`alert mt-3 ${
+            submitStatus.type === "success"
+              ? "alert-success"
+              : submitStatus.type === "warning"
+              ? "alert-warning"
+              : "alert-error"
+          }`}
+        >
+          <span>
+            {submitStatus.type === "success"
+              ? "🎉"
+              : submitStatus.type === "warning"
+              ? "⚠️"
+              : "❌"}
+          </span>
+          <div>
+            <strong>{submitStatus.message}</strong>
+            {submitStatus.requestId && (
+              <div className="mt-1">
+                <small>Request ID: {submitStatus.requestId}</small>
+              </div>
+            )}
+            {submitStatus.emailDetails &&
+              submitStatus.emailDetails.length > 0 && (
+                <div className="mt-2">
+                  <div style={{ fontSize: "0.9em" }}>
+                    {submitStatus.emailDetails.map((detail, index) => (
+                      <div key={index} style={{ marginBottom: "4px" }}>
+                        {detail}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            {submitStatus.warning && (
+              <div
+                className="mt-2"
+                style={{ fontSize: "0.9em", color: "#856404" }}
+              >
+                <strong>Note:</strong> {submitStatus.warning}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

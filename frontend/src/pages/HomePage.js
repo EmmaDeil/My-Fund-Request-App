@@ -1,13 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import FundRequestForm from "../components/FundRequestForm";
 
 const HomePage = () => {
-  const [submissionResult, setSubmissionResult] = useState(null);
-
   const handleSubmissionSuccess = (result) => {
-    setSubmissionResult(result);
-    // Scroll to top to show success message
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // Scroll to bottom to show the notification in the form
+    setTimeout(() => {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    }, 100);
   };
 
   return (
@@ -15,8 +14,9 @@ const HomePage = () => {
       <div className="container">
         {/* Header */}
         <div className="text-center mb-3">
-          <h1><img src="/logo.png" alt="Logo" style={{ height: "40px" }} />{" "}
-            Fund Request System
+          <h1>
+            <img src="/logo.png" alt="Logo" style={{ height: "40px" }} /> Fund
+            Request System
           </h1>
           <p
             style={{
@@ -30,31 +30,6 @@ const HomePage = () => {
             be sent to your designated approver for review and processing.
           </p>
         </div>
-
-        {/* Success Message */}
-        {submissionResult && (
-          <div className="alert alert-success fade-in">
-            <span>🎉</span>
-            <div>
-              <strong>Request Submitted Successfully!</strong>
-              <div className="mt-1">
-                <p>
-                  Your fund request has been submitted and an approval email has
-                  been sent.
-                </p>
-                <div style={{ fontSize: "0.9rem", marginTop: "10px" }}>
-                  <strong>Request ID:</strong> {submissionResult.requestId}
-                </div>
-                {submissionResult.warning && (
-                  <div className="alert alert-warning mt-2">
-                    <span>⚠️</span>
-                    <span>{submissionResult.warning}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* How it Works */}
         <div className="card mb-3">
@@ -147,7 +122,8 @@ const HomePage = () => {
           style={{ color: "#7f8c8d", fontSize: "0.9rem" }}
         >
           <p>
-            © {new Date().getFullYear()} Fund Request System. All requests are processed securely.
+            © {new Date().getFullYear()} Fund Request System. All requests are
+            processed securely.
           </p>
           <p>
             Questions? Contact your system administrator or
