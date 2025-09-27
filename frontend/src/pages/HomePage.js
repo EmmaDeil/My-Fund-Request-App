@@ -91,7 +91,7 @@ const HomePage = () => {
               <h4>Required Information</h4>
               <ul style={{ lineHeight: "1.8" }}>
                 <li>Your full name and email</li>
-                <li>Amount requested (up to $1,000,000)</li>
+                <li>Amount requested (up to ₦1,000,000)</li>
                 <li>Clear purpose for the funds</li>
                 <li>Valid approver email address</li>
               </ul>

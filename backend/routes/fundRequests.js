@@ -1,7 +1,10 @@
 const express = require("express");
 const { v4: uuidv4 } = require("uuid");
 const db = require("../models/mongoDatabase");
-const emailService = require("../utils/emailService");
+const EmailService = require("../utils/emailService"); // Import the class
+
+// Create EmailService instance
+const emailService = new EmailService(); // Create an instance
 
 const router = express.Router();
 
@@ -12,7 +15,7 @@ router.post("/", async (req, res) => {
     console.log(
       `📝 New fund request received from: ${req.body.requester_email}`
     );
-    console.log(`💰 Amount: ${req.body.amount} ${req.body.currency || "USD"}`);
+    console.log(`💰 Amount: ${req.body.amount} ${req.body.currency || "NGN"}`);
 
     const {
       requester_name,
@@ -70,7 +73,7 @@ router.post("/", async (req, res) => {
 
     if (numAmount > 1000000) {
       return res.status(400).json({
-        error: "Amount cannot exceed $1,000,000",
+        error: "Amount cannot exceed ₦1,000,000",
       });
     }
 
@@ -82,7 +85,7 @@ router.post("/", async (req, res) => {
       requester_name: requester_name.trim(),
       requester_email: requester_email.trim().toLowerCase(),
       amount: numAmount,
-      currency: currency || "USD",
+      currency: currency || "NGN",
       purpose: purpose.trim(),
       description: description?.trim() || null,
       approver_email: approver_email.trim().toLowerCase(),
@@ -94,8 +97,12 @@ router.post("/", async (req, res) => {
 
     // Save to database first
     console.log("💾 Attempting to save to database...");
-    await db.createFundRequest(requestData);
+    const savedRequest = await db.createFundRequest(requestData);
     console.log("✅ Successfully saved to database");
+
+    // Update requestData with database timestamps for email templates
+    requestData.created_at = savedRequest.created_at;
+    requestData.updated_at = savedRequest.updated_at;
 
     // Send emails with timeout to prevent hanging
     console.log("📧 Starting email sending process...");

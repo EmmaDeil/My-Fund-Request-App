@@ -286,7 +286,9 @@ class EmailService {
             minimumFractionDigits: 2,
           })}</strong></td></tr>
           <tr><th>Purpose:</th><td>${requestData.purpose}</td></tr>
-          <tr><th>Urgency:</th><td>${requestData.urgency}</td></tr>
+          <tr><th>Urgency:</th><td>${
+            requestData.urgent ? "High Priority" : "Normal"
+          }</td></tr>
           <tr><th>Submitted:</th><td>${new Date(
             requestData.created_at
           ).toLocaleDateString()}</td></tr>
@@ -339,7 +341,7 @@ class EmailService {
     <div class="content">
       <p>Dear ${requestData.requester_name},</p>
       <div class="success-box">
-        <h3 style="margin-top: 0;">��� Request Submitted!</h3>
+        <h3 style="margin-top: 0;">Request Submitted!</h3>
         <p style="margin-bottom: 0;">Your fund request has been successfully submitted and is now under review.</p>
       </div>
       <div class="info-box">
@@ -355,7 +357,9 @@ class EmailService {
           })}</strong></td></tr>
           <tr><th>Purpose:</th><td>${requestData.purpose}</td></tr>
           <tr><th>Department:</th><td>${requestData.department}</td></tr>
-          <tr><th>Urgency Level:</th><td>${requestData.urgency}</td></tr>
+          <tr><th>Urgency Level:</th><td>${
+            requestData.urgent ? "High Priority" : "Normal"
+          }</td></tr>
           <tr><th>Submitted Date:</th><td>${new Date(
             requestData.created_at
           ).toLocaleDateString()}</td></tr>
@@ -388,7 +392,7 @@ Request Details:
       minimumFractionDigits: 2,
     })}
 - Purpose: ${requestData.purpose}
-- Urgency: ${requestData.urgency}
+- Urgency: ${requestData.urgent ? "High Priority" : "Normal"}
 - Submitted: ${new Date(requestData.created_at).toLocaleDateString()}
 
 ${
@@ -420,7 +424,7 @@ Request Details:
     })}
 - Purpose: ${requestData.purpose}
 - Department: ${requestData.department}
-- Urgency Level: ${requestData.urgency}
+- Urgency Level: ${requestData.urgent ? "High Priority" : "Normal"}
 - Submitted Date: ${new Date(requestData.created_at).toLocaleDateString()}
 - Status: Pending Approval
 

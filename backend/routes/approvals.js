@@ -1,7 +1,10 @@
 const express = require("express");
 const db = require("../models/mongoDatabase");
-const emailService = require("../utils/emailService");
+const EmailService = require("../utils/emailService");
 const pdfGenerator = require("../utils/pdfGenerator");
+
+// Create EmailService instance
+const emailService = new EmailService();
 
 const router = express.Router();
 
