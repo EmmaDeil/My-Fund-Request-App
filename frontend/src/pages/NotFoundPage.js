@@ -24,7 +24,7 @@ const NotFoundPage = () => {
 
           <div className="alert alert-info">
             <span>💡</span>
-            <div>
+            <div style={{ textAlign: "left" }}>
               <strong>Looking for something specific?</strong>
               <ul
                 style={{
