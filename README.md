@@ -1,23 +1,75 @@
-# Fund Request App - Local Development
+# 💰 Fund Request Management System
 
-## 🚀 Quick Start (Local Development Only)
+A comprehensive fund request management system with web-based dashboard, real-time monitoring, PDF generation, and retirement workflows.
 
-This is a simplified Fund Request application designed for local development.
+## 🏗️ Project Structure
 
-### Prerequisites
-- Node.js (v16 or higher)
-- MongoDB (running locally on port 27017)
-- Git
+```
+MyFundRequestApp/
+├── 🔧 backend/           # Node.js API server (MongoDB, Email)
+├── 📱 frontend/          # React user interface  
+├── 🌐 dashboard-web/     # Web-based admin dashboard ⭐ NEW
+└── 📄 README.md         # This file
+```
 
-### Setup Instructions
+## 🚀 Quick Start
 
-1. **Clone and Navigate**
-   ```bash
-   cd MyFundRequestApp
-   ```
+### 1. **Dashboard (Admin/Manager Interface)** ⭐ RECOMMENDED
+```bash
+cd dashboard-web
+# Windows:
+start.bat
+# Linux/Mac:
+./start.sh
+```
+Visit: `http://localhost:3001`
 
-2. **Backend Setup**
-   ```bash
+**Features:** Real-time monitoring, approvals, PDF generation, retirement portal
+
+### 2. **Backend API Server**
+```bash
+cd backend
+npm install  
+npm start
+```
+Runs on: `http://localhost:5000`
+
+### 3. **Frontend (User Interface)**  
+```bash
+cd frontend
+npm install
+npm start  
+```
+Runs on: `http://localhost:3000`
+
+## 🎯 What Each Component Does
+
+### 🌐 Dashboard Web (NEW - Main Admin Tool)
+- **Purpose:** Admin and manager interface
+- **Users:** Approvers, finance team, administrators
+- **Features:**
+  - Real-time fund request monitoring
+  - Approve/reject/delete requests
+  - Generate and email PDF documents
+  - Retirement portal with secure document uploads
+  - Currency and department analytics
+  - Export to PDF/Excel
+
+### 🔧 Backend
+- **Purpose:** API server and business logic
+- **Features:**
+  - MongoDB database integration
+  - Email notification system (SMTP)
+  - Fund request processing
+  - Authentication and validation
+
+### 📱 Frontend  
+- **Purpose:** User interface for submitting requests
+- **Users:** Employees requesting funds
+- **Features:**
+  - Submit fund requests
+  - Form validation
+  - Request status tracking
    cd backend
    cp .env.example .env
    # Edit .env with your Gmail credentials and MongoDB settings
