@@ -439,7 +439,7 @@ const FundRequestForm = ({ onSubmissionSuccess }) => {
               onChange={handleInputChange}
               disabled={isSubmitting}
             />
-            <span className="form-label">Mark as urgent</span>
+            <span className="form-label mt-1">Mark as urgent</span>
           </label>
           <div className="form-help">
             Urgent requests will be highlighted in the approval email

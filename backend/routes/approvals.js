@@ -1,10 +1,7 @@
 const express = require("express");
 const db = require("../models/mongoDatabase");
-const EmailService = require("../utils/emailService");
+const emailService = require("../utils/emailService"); // Import singleton instance
 const pdfGenerator = require("../utils/pdfGenerator");
-
-// Create EmailService instance
-const emailService = new EmailService();
 
 const router = express.Router();
 

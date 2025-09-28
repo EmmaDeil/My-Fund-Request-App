@@ -1,10 +1,7 @@
 const express = require("express");
 const { v4: uuidv4 } = require("uuid");
 const db = require("../models/mongoDatabase");
-const EmailService = require("../utils/emailService"); // Import the class
-
-// Create EmailService instance
-const emailService = new EmailService(); // Create an instance
+const emailService = require("../utils/emailService"); // Import the singleton instance
 
 const router = express.Router();
 
