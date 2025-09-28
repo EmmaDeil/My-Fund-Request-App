@@ -22,8 +22,8 @@ console.log("===================================");
   try {
     await db.init();
 
-    // Get request ID from command line or use default
-    const requestId = process.argv[2] || "952522d2-ae3a-4915-8b1f-fca3267f6546";
+    // Get request ID from command line or use a valid default from the latest requests
+    const requestId = process.argv[2] || "952522d2-ae3a-4915-8b1f-fca3267f6546"; // Most recent request ID
     console.log(`🔍 Checking: ${requestId}`);
 
     const request = await db.getFundRequestById(requestId);
