@@ -4,7 +4,7 @@ const {
   createBeautifulApprovalTemplate,
   createBeautifulDenialTemplate,
 } = require("./beautifulEmailTemplates");
-require("dotenv").config();
+// Note: Environment variables are loaded in server.js - do not reload here to avoid overriding production config
 
 class EmailService {
   constructor() {

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-require("dotenv").config();
+// Note: Environment variables are loaded in server.js - do not reload here to avoid overriding production config
 
 // MongoDB connection
 const connectDB = async () => {

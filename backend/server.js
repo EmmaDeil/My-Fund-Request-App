@@ -12,11 +12,15 @@ console.log(
 // Load the appropriate .env file
 if (env === "production") {
   require("dotenv").config({ path: ".env.production" });
+  console.log("✅ Loaded production environment configuration");
 } else if (env === "development") {
   require("dotenv").config({ path: ".env.development" });
+  console.log("✅ Loaded development environment configuration");
+} else {
+  // Only fallback to default .env if no specific environment is set
+  require("dotenv").config();
+  console.log("✅ Loaded default environment configuration");
 }
-// Fallback to default .env file
-require("dotenv").config();
 
 const app = express();
 // Use PORT from environment with multiple fallbacks for maximum compatibility
