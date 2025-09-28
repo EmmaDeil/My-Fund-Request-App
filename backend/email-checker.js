@@ -23,14 +23,14 @@ console.log("===================================");
     await db.init();
 
     // Get request ID from command line or use a valid default from the latest requests
-    const requestId = process.argv[2] || "952522d2-ae3a-4915-8b1f-fca3267f6546"; // Most recent request ID
+    const requestId = process.argv[2] || "826aa11a-9036-40a3-88f9-bab8a370d6fd"; // Most recent request ID
     console.log(`🔍 Checking: ${requestId}`);
 
     const request = await db.getFundRequestById(requestId);
 
     if (!request) {
       console.log(`❌ Request not found: ${requestId}`);
-      console.log("💡 Usage: node test-email-logging.js [REQUEST_ID]");
+      console.log("💡 Usage: node email-checker.js [REQUEST_ID]");
       process.exit(1);
     }
 
