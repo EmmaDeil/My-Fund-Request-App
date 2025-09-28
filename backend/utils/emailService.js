@@ -13,22 +13,18 @@ class EmailService {
       host: process.env.EMAIL_HOST,
       port: parseInt(process.env.EMAIL_PORT),
       secure: process.env.EMAIL_SECURE === "true",
-      requireTLS: true,
+      requireTLS: false, // Changed to false for better compatibility
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-      connectionTimeout: 60000, // 60 seconds
-      greetingTimeout: 30000, // 30 seconds
-      socketTimeout: 60000, // 60 seconds
+      connectionTimeout: 30000, // Reduced to 30 seconds
+      greetingTimeout: 15000, // Reduced to 15 seconds
+      socketTimeout: 30000, // Reduced to 30 seconds
       tls: {
-        ciphers: "SSLv3",
-        rejectUnauthorized: false,
+        rejectUnauthorized: false, // Allow self-signed certificates
       },
-      pool: true, // Use connection pooling
-      maxConnections: 1, // Limit connections
-      rateDelta: 20000, // Rate limiting
-      rateLimit: 5,
+      pool: false, // Disable connection pooling for simpler connections
       debug: false, // Set to true for debugging
     });
     console.log("📧 Using SMTP for email service");
@@ -238,7 +234,13 @@ class EmailService {
   }
 
   async sendApprovalEmail(requestData) {
-    const approvalUrl = `${process.env.FRONTEND_URL}/approve/${requestData.approvalToken}`;
+    console.log(
+      `📋 [Request ID: ${requestData.id}] Preparing approval email to approver`
+    );
+    console.log(
+      `📧 [Request ID: ${requestData.id}] Approval email to: ${requestData.approver_email}`
+    );
+    const approvalUrl = `${process.env.FRONTEND_URL}/approve/${requestData.approval_token}`;
     const formattedAmount = this.formatCurrency(
       requestData.amount,
       requestData.currency
@@ -246,18 +248,18 @@ class EmailService {
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: requestData.approverEmail,
+      to: requestData.approver_email,
       subject: `📋 New Fund Request Approval Required - ${formattedAmount}`,
       html: createBeautifulApprovalRequestTemplate(
         requestData,
-        [{ email: requestData.approverEmail }],
+        [{ email: requestData.approver_email }],
         requestData.urgent ? "#e74c3c" : "#28a745",
         requestData.urgent ? "HIGH PRIORITY" : "NORMAL",
         approvalUrl
       ),
     };
 
-    return await this.sendEmailWithRetry(mailOptions);
+    return await this.sendEmailWithRetry(mailOptions, 3, requestData.id);
   }
 
   async sendConfirmationEmail(requestData) {
@@ -469,7 +471,7 @@ class EmailService {
       `,
     };
 
-    return await this.sendEmailWithRetry(mailOptions);
+    return await this.sendEmailWithRetry(mailOptions, 3, fundRequest.id);
   }
 }
 

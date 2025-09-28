@@ -104,7 +104,7 @@ router.post("/", async (req, res) => {
     // Send emails with timeout to prevent hanging
     console.log("📧 Starting email sending process...");
     const sendEmailsWithTimeout = async () => {
-      const EMAIL_TIMEOUT = 5000; // 5 seconds timeout (reduced to fit under frontend 30s timeout)
+      const EMAIL_TIMEOUT = 15000; // 15 seconds timeout for better SMTP reliability
 
       const sendEmailWithTimeout = (emailPromise, timeoutMs) => {
         return Promise.race([
