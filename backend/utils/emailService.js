@@ -110,7 +110,7 @@ class EmailService {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: approverEmails,
-      subject: `${urgencyIcon} New Fund Request: ${fundRequest.title} - ${formattedAmount}`,
+      subject: `${urgencyIcon} New Fund Request: ${fundRequest.purpose} - ${formattedAmount}`,
       html: `
         <!DOCTYPE html>
         <html lang="en">
@@ -159,7 +159,7 @@ class EmailService {
                           <tr>
                             <td style="color: #7f8c8d; font-weight: 600; width: 140px; vertical-align: top;">Purpose:</td>
                             <td style="color: #2c3e50; font-weight: 500; border-left: 2px solid #3498db; padding-left: 15px;">${
-                              fundRequest.title
+                              fundRequest.purpose
                             }</td>
                           </tr>
                           <tr>
@@ -169,7 +169,7 @@ class EmailService {
                           <tr>
                             <td style="color: #7f8c8d; font-weight: 600; vertical-align: top;">Requester:</td>
                             <td style="color: #2c3e50; font-weight: 500; border-left: 2px solid #3498db; padding-left: 15px;">
-                              👤 ${fundRequest.requesterName}<br>
+                              👤 ${fundRequest.requester_name}<br>
                               <span style="color: #7f8c8d; font-size: 14px;">📧 ${
                                 approverEmails[0]
                               }</span>
@@ -184,7 +184,8 @@ class EmailService {
                           <tr>
                             <td style="color: #7f8c8d; font-weight: 600; vertical-align: top;">Date Submitted:</td>
                             <td style="color: #2c3e50; font-weight: 500; border-left: 2px solid #3498db; padding-left: 15px;">📅 ${new Date(
-                              fundRequest.requestedDate
+                              fundRequest.requested_date ||
+                                fundRequest.createdAt
                             ).toLocaleDateString("en-US", {
                               weekday: "long",
                               year: "numeric",
@@ -289,8 +290,8 @@ class EmailService {
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: fundRequest.requesterEmail,
-      subject: `${statusEmoji} Fund Request ${statusText}: ${fundRequest.title} - ${formattedAmount}`,
+      to: fundRequest.requester_email,
+      subject: `${statusEmoji} Fund Request ${statusText}: ${fundRequest.purpose} - ${formattedAmount}`,
       html: `
         <!DOCTYPE html>
         <html lang="en">
@@ -485,7 +486,7 @@ class EmailService {
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: fundRequest.requesterEmail,
+      to: fundRequest.requester_email,
       subject: `${documentIcon} Official Document: Fund Request ${statusText} - ${formattedAmount}`,
       html: `
         <!DOCTYPE html>
@@ -536,7 +537,7 @@ class EmailService {
                           <tr>
                             <td style="color: #6c757d; font-weight: 600; width: 140px; vertical-align: top;">Request:</td>
                             <td style="color: #2c3e50; font-weight: 500; border-left: 2px solid #6c757d; padding-left: 15px;">${
-                              fundRequest.title
+                              fundRequest.purpose
                             }</td>
                           </tr>
                           <tr>

@@ -644,8 +644,8 @@
 
         .action-buttons {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
             margin-top: 24px;
         }
 
@@ -653,7 +653,7 @@
             background: linear-gradient(135deg, #00d4aa, #00a3ff);
             border: none;
             border-radius: 12px;
-            padding: 14px 20px;
+            padding: 12px 16px;
             color: white;
             font-weight: 600;
             cursor: pointer;
@@ -661,10 +661,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            font-size: 14px;
+            font-size: 12px;
+            min-width: 120px;
         }
 
         .action-btn:hover {
@@ -696,6 +697,40 @@
 
         .action-btn.delete-btn:hover {
             box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3);
+        }
+
+        .action-btn.copy-btn {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+        }
+
+        .action-btn.copy-btn:hover {
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+        }
+
+        .export-format-btn {
+            background: #0f0f23;
+            border: 2px solid #333366;
+            border-radius: 12px;
+            padding: 16px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .export-format-btn:hover {
+            border-color: #00a3ff;
+            background: #1a1a3a;
+            transform: translateX(4px);
+        }
+
+        .export-format-btn:active {
+            transform: scale(0.98);
         }
 
         .status-select {
@@ -928,6 +963,41 @@
         </div>
     </div>
 
+    <!-- Export Format Selection Modal -->
+    <div id="exportModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 class="modal-title">📤 Export Data</h2>
+                <button class="close-btn" onclick="closeExportModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="color: #8892b0; margin-bottom: 20px;">Choose your preferred export format:</p>
+                
+                <div style="display: grid; gap: 12px; margin-bottom: 24px;">
+                    <button class="export-format-btn" onclick="selectExportFormat('pdf')">
+                        <span style="font-size: 24px;">📄</span>
+                        <div>
+                            <div style="font-weight: 600; color: white;">PDF Document</div>
+                            <div style="font-size: 12px; color: #8892b0;">Professional report with formatted layouts</div>
+                        </div>
+                    </button>
+                    
+                    <button class="export-format-btn" onclick="selectExportFormat('excel')">
+                        <span style="font-size: 24px;">📊</span>
+                        <div>
+                            <div style="font-weight: 600; color: white;">Excel Spreadsheet</div>
+                            <div style="font-size: 12px; color: #8892b0;">Data table for analysis and calculations</div>
+                        </div>
+                    </button>
+                </div>
+                
+                <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                    <button class="action-btn" onclick="closeExportModal()" style="background: #6c757d;">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Request Details Modal -->
     <div id="requestModal" class="modal">
         <div class="modal-content">
@@ -990,11 +1060,15 @@
                 <div class="action-buttons">
                     <button class="action-btn pdf-btn" id="sendPdfBtn" onclick="sendPDFToApprover()">
                         <span>📄</span>
-                        Send PDF
+                        PDF
                     </button>
                     <button class="action-btn retire-btn" id="sendRetireBtn" onclick="sendRetireFunds()">
                         <span>💰</span>
-                        Retirement
+                        Retire
+                    </button>
+                    <button class="action-btn copy-btn" id="copyDetailsBtn" onclick="copyRequestDetails()">
+                        <span>📋</span>
+                        Copy
                     </button>
                     <button class="action-btn delete-btn" id="deleteRequestBtn" onclick="deleteRequest()">
                         <span>🗑️</span>
@@ -1684,21 +1758,24 @@
 
         // Export functionality
         function showExportOptions() {
-            const format = prompt('Choose export format:\n\nType "PDF" for PDF export\nType "XLS" for Excel export');
-            
-            if (!format) {
-                return; // User cancelled
-            }
-            
-            const formatUpper = format.toUpperCase();
-            if (formatUpper === 'PDF') {
-                exportData('pdf');
-            } else if (formatUpper === 'XLS' || formatUpper === 'EXCEL') {
-                exportData('excel');
-            } else {
-                alert('❌ Invalid format. Please type "PDF" or "XLS"');
-            }
+            document.getElementById('exportModal').classList.add('show');
         }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.remove('show');
+        }
+
+        function selectExportFormat(format) {
+            closeExportModal();
+            exportData(format);
+        }
+
+        // Close export modal when clicking outside
+        document.getElementById('exportModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeExportModal();
+            }
+        });
 
         async function exportData(format) {
             try {
@@ -1757,6 +1834,50 @@
                 exportBtn.innerHTML = '<span>📤</span>Export Data';
                 exportBtn.disabled = false;
             }
+        }
+
+        // Copy request details to clipboard
+        function copyRequestDetails() {
+            if (!currentRequestData) return;
+            
+            const details = `
+FUND REQUEST DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 Request ID: ${currentRequestData._id}
+👤 Requester: ${currentRequestData.requester_name}
+📧 Requester Email: ${currentRequestData.requester_email}
+👨‍💼 Approver: ${currentRequestData.approver_email}
+💰 Amount: ${formatCurrency(currentRequestData.amount, currentRequestData.currency)}
+📝 Purpose: ${currentRequestData.purpose}
+📄 Description: ${currentRequestData.description || 'N/A'}
+📊 Status: ${currentRequestData.status.toUpperCase()}
+🚨 Priority: ${currentRequestData.urgent ? 'URGENT' : 'Normal'}
+🏢 Department: ${currentRequestData.department || 'N/A'}
+📅 Created: ${new Date(currentRequestData.created_at).toLocaleString()}
+🔑 Approval Token: ${currentRequestData.approval_token || 'N/A'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Generated from Fund Request Dashboard
+${new Date().toLocaleString()}
+            `.trim();
+            
+            navigator.clipboard.writeText(details).then(() => {
+                alert('✅ Request details copied to clipboard!\\n\\nYou can now paste this information in an email or document to share with the approver.');
+            }).catch(err => {
+                console.error('Failed to copy to clipboard:', err);
+                
+                // Fallback: show details in a dialog
+                const textarea = document.createElement('textarea');
+                textarea.value = details;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                alert('✅ Details copied to clipboard!\\n\\n📝 If paste does not work, the details have been selected for you to manually copy.');
+            });
         }
     </script>
 </body>
