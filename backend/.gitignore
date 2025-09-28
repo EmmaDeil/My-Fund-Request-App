@@ -4,6 +4,9 @@
 /node_modules
 /.pnp
 .pnp.js
+.diagnostics.js
+.check-approvals-token.js
+.email-diagnostics.js
 
 # Environment files with sensitive data
 .env
