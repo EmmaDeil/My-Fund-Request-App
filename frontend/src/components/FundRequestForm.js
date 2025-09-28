@@ -308,10 +308,10 @@ const FundRequestForm = ({ onSubmissionSuccess }) => {
                 disabled={isSubmitting}
               >
                 <option value="NGN">NGN (₦)</option>
-                {/* <option value="USD">USD ($)</option> */}
-                <option value="EUR">EUR (€)</option>
-                {/* <option value="GBP">GBP (£)</option> */}
+                <option value="USD">USD ($)</option>
                 <option value="CAD">CAD (C$)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
               </select>
             </div>
           </div>
@@ -395,10 +395,13 @@ const FundRequestForm = ({ onSubmissionSuccess }) => {
                 <option value="">Select a category</option>
                 <option value="Office Supplies">Office Supplies</option>
                 <option value="Travel">Travel</option>
-                <option value="Equipment">Equipment</option>
+                <option value="Equipment">Equipment Purchase</option>
                 <option value="Training">Training</option>
                 <option value="Software">Software</option>
                 <option value="Marketing">Marketing</option>
+                <option value="Maintenance">Maintenance</option>
+                <option value="Company Events">Company Events</option>
+                <option value="Organizational">Organizational</option>
                 <option value="Other">Other</option>
               </select>
             </div>

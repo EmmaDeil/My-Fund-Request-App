@@ -158,7 +158,7 @@ router.post("/", async (req, res) => {
             if (!success) emailErrors.push(`Approval email failed: ${error}`);
             else
               console.log(
-                `✅ Approval email sent to: ${requestData.approver_email}`
+                `✅ [Request ID: ${requestData.id}] Approval email sent to: ${requestData.approver_email}`
               );
           } else if (type === "confirmation") {
             confirmationEmailSent = success;
@@ -166,7 +166,7 @@ router.post("/", async (req, res) => {
               emailErrors.push(`Confirmation email failed: ${error}`);
             else
               console.log(
-                `✅ Confirmation email sent to: ${requestData.requester_email}`
+                `✅ [Request ID: ${requestData.id}] Confirmation email sent to: ${requestData.requester_email}`
               );
           }
         }

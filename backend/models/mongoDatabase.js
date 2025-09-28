@@ -40,7 +40,7 @@ const fundRequestSchema = new mongoose.Schema(
     },
     currency: {
       type: String,
-      default: "USD",
+      default: "NGN",
       uppercase: true,
     },
     purpose: {

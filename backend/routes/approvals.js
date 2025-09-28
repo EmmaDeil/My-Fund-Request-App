@@ -149,13 +149,42 @@ router.post("/:token/:action", async (req, res) => {
       // Continue without PDF if generation fails
     }
 
-    // Send status notification email to requester (with PDF attachment)
+    // Send status notification email to requester
     try {
+      console.log(
+        `📋 [Request ID: ${
+          updatedRequest.id
+        }] Processing ${newStatus} decision by ${
+          approver_name?.trim() || "System"
+        }`
+      );
+
       await emailService.sendStatusNotification(
         updatedRequest,
         newStatus,
-        pdfBuffer,
-        pdfFilename
+        approver_name?.trim() || updatedRequest.approver_email,
+        notes?.trim() || ""
+      );
+
+      // If we have PDF, send it as well
+      if (pdfBuffer) {
+        await emailService.sendApprovalDecisionPDF(
+          updatedRequest,
+          newStatus,
+          approver_name?.trim() || updatedRequest.approver_email,
+          pdfBuffer
+        );
+        console.log(
+          `✅ [Request ID: ${updatedRequest.id}] PDF attachment sent with ${newStatus} notification`
+        );
+      }
+
+      console.log(
+        `✅ [Request ID: ${
+          updatedRequest.id
+        }] ${newStatus.toUpperCase()} notification sent to requester: ${
+          updatedRequest.requester_email
+        }`
       );
     } catch (emailError) {
       console.error("Failed to send status notification email:", emailError);
