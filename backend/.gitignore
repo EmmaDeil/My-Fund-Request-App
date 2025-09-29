@@ -42,3 +42,4 @@ yarn-error.log*
 *.temp
 test-*.js
 debug-*.js
+.vercel
