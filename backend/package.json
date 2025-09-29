@@ -2,7 +2,7 @@
   "name": "fund-request-backend",
   "version": "1.0.0",
   "description": "Backend API for Fund Request Application",
-  "main": "server.js",
+  "main": "api/index.js",
   "scripts": {
     "start": "node server.js",
     "start:dev": "NODE_ENV=development node server.js",

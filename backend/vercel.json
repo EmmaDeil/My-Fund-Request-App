@@ -3,7 +3,7 @@
   "name": "fund-request-backend",
   "rewrites": [
     {
-      "source": "/api/(.*)",
+      "source": "/(.*)",
       "destination": "/api/index.js"
     }
   ],
