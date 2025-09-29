@@ -10,7 +10,8 @@ const getAPIBaseURL = () => {
   if (isProduction) {
     // In production, use the production backend URL
     return (
-      process.env.REACT_APP_API_URL || "https://backend-o0ll.onrender.com/api"
+      process.env.REACT_APP_API_URL ||
+      "https://my-fund-request-app.vercel.app/api"
     );
   } else {
     // In development, use localhost
