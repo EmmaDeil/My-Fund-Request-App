@@ -21,11 +21,32 @@ const ApprovalPage = () => {
       setLoading(true);
       setError(null);
 
+      // Add timeout and better error handling
       const response = await approvalAPI.getByToken(token);
       setRequest(response.request);
     } catch (err) {
       console.error("Error loading request details:", err);
-      setError(err.message);
+
+      // Enhanced error handling with automatic redirect detection
+      if (err.message.includes("404") || err.message.includes("Not Found")) {
+        setError(
+          "⚠️ Approval link not found. This might be due to a deployment issue. " +
+            "Please contact the system administrator or try refreshing the page."
+        );
+      } else if (
+        err.message.includes("Network error") ||
+        err.message.includes("timeout")
+      ) {
+        setError(
+          "🌐 Network connection issue. Please check your internet connection and try again."
+        );
+      } else if (err.message.includes("Invalid or expired")) {
+        setError(
+          "🕒 This approval link has expired or is invalid. Please contact the requester for a new approval link."
+        );
+      } else {
+        setError(`❌ Error: ${err.message}`);
+      }
     } finally {
       setLoading(false);
     }
