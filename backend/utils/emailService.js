@@ -8,26 +8,29 @@ const {
 
 class EmailService {
   constructor() {
-    // Initialize SMTP with enhanced configuration for reliability
+    // Initialize SMTP with Gmail-optimized configuration for serverless
     this.transporter = nodemailer.createTransport({
+      service: "gmail", // Use Gmail service for better compatibility
       host: process.env.EMAIL_HOST,
       port: parseInt(process.env.EMAIL_PORT),
       secure: process.env.EMAIL_SECURE === "true",
-      requireTLS: false, // Changed to false for better compatibility
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-      connectionTimeout: 30000, // Reduced to 30 seconds
-      greetingTimeout: 15000, // Reduced to 15 seconds
-      socketTimeout: 30000, // Reduced to 30 seconds
+      connectionTimeout: 60000, // 60 seconds for serverless
+      greetingTimeout: 30000,
+      socketTimeout: 60000,
       tls: {
-        rejectUnauthorized: false, // Allow self-signed certificates
+        rejectUnauthorized: false,
       },
-      pool: false, // Disable connection pooling for simpler connections
-      debug: false, // Set to true for debugging
+      pool: false, // No connection pooling for serverless
+      debug: process.env.NODE_ENV === "development",
     });
-    console.log("📧 Using SMTP for email service");
+    console.log("📧 Using Gmail SMTP service");
+    console.log(
+      `📧 SMTP Config: ${process.env.EMAIL_HOST}:${process.env.EMAIL_PORT} (secure: ${process.env.EMAIL_SECURE})`
+    );
   }
 
   async verifyConnection() {
