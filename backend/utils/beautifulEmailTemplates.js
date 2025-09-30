@@ -50,11 +50,11 @@ const createBeautifulApprovalRequestTemplate = (
   <title>Fund Request Approval Required</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+    body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background-color: #0d131aff; }
     .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
   </style>
 </head>
-<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: 'Inter', sans-serif;">
+<body style="margin: 0; padding: 0; background-color: #0d131aff; font-family: 'Inter', sans-serif;">
   <div class="container" style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
     
     <!-- Header -->
