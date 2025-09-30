@@ -83,6 +83,64 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// Approval redirect fallback - handles direct backend approval links
+app.get("/approve/:token", (req, res) => {
+  const { token } = req.params;
+  const frontendURL = process.env.FRONTEND_URL || "http://localhost:3000";
+  const redirectUrl = `${frontendURL}/approve/${token}`;
+  
+  console.log(`🔀 [Backend Redirect] Approval token: ${token}`);
+  console.log(`🎯 [Backend Redirect] Redirecting to: ${redirectUrl}`);
+  
+  // Send HTML redirect with JavaScript fallback
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Redirecting to Approval Page...</title>
+      <meta http-equiv="refresh" content="0; url=${redirectUrl}">
+      <script>
+        // JavaScript fallback
+        setTimeout(function() {
+          window.location.href = "${redirectUrl}";
+        }, 100);
+      </script>
+      <style>
+        body { 
+          font-family: Arial, sans-serif; 
+          text-align: center; 
+          padding: 50px;
+          background: #f8f9fa;
+        }
+        .loading {
+          font-size: 18px;
+          color: #333;
+          margin-bottom: 20px;
+        }
+        .spinner {
+          border: 4px solid #f3f3f3;
+          border-top: 4px solid #3498db;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          animation: spin 1s linear infinite;
+          margin: 20px auto;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="loading">🔄 Redirecting to approval page...</div>
+      <div class="spinner"></div>
+      <p>If you are not redirected automatically, <a href="${redirectUrl}">click here</a>.</p>
+    </body>
+    </html>
+  `);
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
