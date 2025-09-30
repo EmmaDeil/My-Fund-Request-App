@@ -42,8 +42,8 @@ const FundRequestForm = ({ onSubmissionSuccess }) => {
       const amount = parseFloat(formData.amount);
       if (isNaN(amount) || amount <= 0) {
         newErrors.amount = "Amount must be a positive number";
-      } else if (amount > 1000000) {
-        newErrors.amount = "Amount cannot exceed $1,000,000";
+      } else if (amount > 10000000) {
+        newErrors.amount = "Amount cannot exceed 10,000,000";
       }
     }
 
