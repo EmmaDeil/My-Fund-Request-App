@@ -1594,6 +1594,320 @@ app.post(
   }
 );
 
+// ============================================
+// EMAIL MANAGEMENT ROUTES
+// ============================================
+
+// Get all requests with email status for dashboard
+app.get("/api/email-management", async (req, res) => {
+  try {
+    const { page = 1, limit = 20, status, search } = req.query;
+
+    // Build filter
+    const filter = {};
+    if (status && status !== "all") {
+      filter.status = status;
+    }
+    if (search) {
+      filter.$or = [
+        { requester_name: { $regex: search, $options: "i" } },
+        { requester_email: { $regex: search, $options: "i" } },
+        { approver_email: { $regex: search, $options: "i" } },
+        { purpose: { $regex: search, $options: "i" } },
+        { _id: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // Get requests with pagination
+    const requests = await FundRequest.find(filter)
+      .sort({ created_at: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .lean();
+
+    // Get total count
+    const total = await FundRequest.countDocuments(filter);
+
+    // Enhance requests with email status analysis
+    const enhancedRequests = requests.map((request) => {
+      // Calculate email status based on request lifecycle
+      const emailStatus = {
+        initialApprovalSent: false,
+        confirmationSent: false,
+        statusNotificationSent: false,
+        needsInitialApproval: false,
+        needsConfirmation: false,
+        needsStatusNotification: false,
+      };
+
+      // Determine what emails should have been sent
+      emailStatus.needsInitialApproval = request.status === "pending";
+      emailStatus.needsConfirmation = request.status === "pending";
+      emailStatus.needsStatusNotification = request.status !== "pending";
+
+      // Note: In a real implementation, you'd track email sent status in the database
+      // For now, we'll make educated guesses based on timestamps and status
+
+      const timeSinceCreation =
+        Date.now() - new Date(request.created_at).getTime();
+      const fiveMinutesInMs = 5 * 60 * 1000;
+
+      // If request is older than 5 minutes and still pending, likely emails were sent
+      if (timeSinceCreation > fiveMinutesInMs && request.status === "pending") {
+        emailStatus.initialApprovalSent = true;
+        emailStatus.confirmationSent = true;
+      }
+
+      // If request is approved/rejected, status notification should have been sent
+      if (request.status !== "pending") {
+        emailStatus.statusNotificationSent = true;
+        emailStatus.initialApprovalSent = true;
+        emailStatus.confirmationSent = true;
+      }
+
+      return {
+        ...request,
+        emailStatus,
+        requestAge: Math.floor(timeSinceCreation / (1000 * 60)), // Age in minutes
+        approvalUrl: `${
+          process.env.FRONTEND_URL || "https://your-frontend.com"
+        }/approve/${request.approval_token}`,
+      };
+    });
+
+    res.json({
+      requests: enhancedRequests,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(total / limit),
+        totalItems: total,
+        itemsPerPage: parseInt(limit),
+      },
+    });
+  } catch (error) {
+    console.error("Email management fetch error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Send approval email manually
+app.post("/api/email-management/:requestId/send-approval", async (req, res) => {
+  try {
+    const { requestId } = req.params;
+
+    // Find the request
+    const request = await FundRequest.findById(requestId);
+    if (!request) {
+      return res.status(404).json({ error: "Request not found" });
+    }
+
+    // Check if request is in valid state for approval email
+    if (request.status !== "pending") {
+      return res.status(400).json({
+        error: "Can only send approval emails for pending requests",
+      });
+    }
+
+    // Import EmailService from the main backend
+    const emailServicePath = path.join(
+      __dirname,
+      "../backend/utils/emailService.js"
+    );
+    const emailService = require(emailServicePath);
+
+    // Convert request to the format expected by emailService
+    const fundRequest = {
+      id: request._id.toString(),
+      requester_name: request.requester_name,
+      requester_email: request.requester_email,
+      approver_email: request.approver_email,
+      purpose: request.purpose,
+      description: request.description,
+      amount: request.amount,
+      currency: request.currency,
+      urgent: request.urgent,
+      approvalToken: request.approval_token,
+      created_at: request.created_at,
+    };
+
+    // Send approval email
+    const approvers = [{ email: request.approver_email }];
+    await emailService.sendFundRequestNotification(fundRequest, approvers);
+
+    res.json({
+      success: true,
+      message: "Approval email sent successfully",
+      recipient: request.approver_email,
+    });
+  } catch (error) {
+    console.error("Send approval email error:", error);
+    res.status(500).json({
+      error: "Failed to send approval email",
+      message: error.message,
+    });
+  }
+});
+
+// Send confirmation email manually
+app.post(
+  "/api/email-management/:requestId/send-confirmation",
+  async (req, res) => {
+    try {
+      const { requestId } = req.params;
+
+      // Find the request
+      const request = await FundRequest.findById(requestId);
+      if (!request) {
+        return res.status(404).json({ error: "Request not found" });
+      }
+
+      // Import EmailService from the main backend
+      const emailServicePath = path.join(
+        __dirname,
+        "../backend/utils/emailService.js"
+      );
+      const emailService = require(emailServicePath);
+
+      // Convert request to the format expected by emailService
+      const requestData = {
+        id: request._id.toString(),
+        requester_name: request.requester_name,
+        requester_email: request.requester_email,
+        approver_email: request.approver_email,
+        purpose: request.purpose,
+        description: request.description,
+        amount: request.amount,
+        currency: request.currency,
+        urgent: request.urgent,
+        approval_token: request.approval_token,
+        created_at: request.created_at,
+      };
+
+      // Send confirmation email
+      await emailService.sendConfirmationEmail(requestData);
+
+      res.json({
+        success: true,
+        message: "Confirmation email sent successfully",
+        recipient: request.requester_email,
+      });
+    } catch (error) {
+      console.error("Send confirmation email error:", error);
+      res.status(500).json({
+        error: "Failed to send confirmation email",
+        message: error.message,
+      });
+    }
+  }
+);
+
+// Send status notification email manually
+app.post("/api/email-management/:requestId/send-status", async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const { approverName, comments } = req.body;
+
+    // Find the request
+    const request = await FundRequest.findById(requestId);
+    if (!request) {
+      return res.status(404).json({ error: "Request not found" });
+    }
+
+    // Check if request has been processed
+    if (request.status === "pending") {
+      return res.status(400).json({
+        error: "Cannot send status notification for pending requests",
+      });
+    }
+
+    // Import EmailService from the main backend
+    const emailServicePath = path.join(
+      __dirname,
+      "../backend/utils/emailService.js"
+    );
+    const emailService = require(emailServicePath);
+
+    // Convert request to the format expected by emailService
+    const fundRequest = {
+      id: request._id.toString(),
+      requester_name: request.requester_name,
+      requester_email: request.requester_email,
+      approver_email: request.approver_email,
+      purpose: request.purpose,
+      description: request.description,
+      amount: request.amount,
+      currency: request.currency,
+      urgent: request.urgent,
+      status: request.status,
+      created_at: request.created_at,
+    };
+
+    // Send status notification
+    const approver =
+      approverName || request.approved_by || request.rejected_by || "System";
+    const notification_comments = comments || request.rejection_reason || "";
+
+    await emailService.sendStatusNotification(
+      fundRequest,
+      request.status,
+      approver,
+      notification_comments
+    );
+
+    res.json({
+      success: true,
+      message: `${request.status} notification sent successfully`,
+      recipient: request.requester_email,
+    });
+  } catch (error) {
+    console.error("Send status notification error:", error);
+    res.status(500).json({
+      error: "Failed to send status notification",
+      message: error.message,
+    });
+  }
+});
+
+// Test email configuration
+app.post("/api/email-management/test-config", async (req, res) => {
+  try {
+    // Import EmailService from the main backend
+    const emailServicePath = path.join(
+      __dirname,
+      "../backend/utils/emailService.js"
+    );
+    const emailService = require(emailServicePath);
+
+    // Test SMTP connection
+    const isConnected = await emailService.verifyConnection();
+
+    if (isConnected) {
+      res.json({
+        success: true,
+        message: "Email configuration is working correctly",
+        config: {
+          host: process.env.EMAIL_HOST,
+          port: process.env.EMAIL_PORT,
+          user: process.env.EMAIL_USER,
+          secure: process.env.EMAIL_SECURE,
+        },
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: "Email configuration test failed",
+      });
+    }
+  } catch (error) {
+    console.error("Email config test error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Email configuration test failed",
+      message: error.message,
+    });
+  }
+});
+
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });

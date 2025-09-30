@@ -72,7 +72,7 @@
         /* Controls */
         .controls {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 16px;
             background: #1a1a3a;
             border-radius: 16px;
@@ -84,7 +84,7 @@
         .control-group {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 4px;
         }
 
         .control-label {
@@ -115,7 +115,8 @@
             background: linear-gradient(135deg, #00d4aa, #00a3ff);
             border: none;
             border-radius: 12px;
-            padding: 12px 24px;
+            padding: 12px 12px;
+            /* max-width: 10rem; */
             color: white;
             font-weight: 600;
             cursor: pointer;
@@ -127,6 +128,166 @@
         .refresh-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(0, 163, 255, 0.3);
+        }
+
+        /* Email Management Styles */
+        .btn {
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status {
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4aa, #00a3ff);
+            color: white;
+            margin-top: 1rem;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .email-request-card {
+            background: #1a1a3a;
+            border: 1px solid #333366;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 1rem;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .email-request-card:hover {
+            border-color: #00a3ff;
+            transform: translateY(-2px);
+        }
+
+        .email-request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .email-request-title {
+            font-weight: 600;
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        .email-request-id {
+            font-family: 'Courier New', monospace;
+            color: #8892b0;
+            font-size: 12px;
+        }
+
+        .email-status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 12px 0;
+        }
+
+        .email-status-item {
+            background: #0f0f23;
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #333366;
+        }
+
+        .email-status-label {
+            font-size: 12px;
+            color: #8892b0;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .email-status-value {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .email-status-sent {
+            color: #28a745;
+        }
+
+        .email-status-not-sent {
+            color: #dc3545;
+        }
+
+        .email-status-pending {
+            color: #ffc107;
+        }
+
+        .email-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .email-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .email-info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .email-info-label {
+            color: #8892b0;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .email-info-value {
+            color: #ffffff;
+            word-break: break-all;
         }
 
         /* Statistics Grid */
@@ -291,6 +452,114 @@
             display: flex;
             align-items: center;
             gap: 12px;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+        }
+
+        .toast {
+            background: #1a1a3a;
+            border: 1px solid #333366;
+            border-radius: 12px;
+            padding: 16px 20px;
+            color: #ffffff;
+            font-size: 14px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-left: 4px solid #00d4aa;
+            background: linear-gradient(135deg, #1a3a2e 0%, #1a1a3a 100%);
+        }
+
+        .toast.error {
+            border-left: 4px solid #ff6b6b;
+            background: linear-gradient(135deg, #3a1a1a 0%, #1a1a3a 100%);
+        }
+
+        .toast.info {
+            border-left: 4px solid #00a3ff;
+            background: linear-gradient(135deg, #1a2a3a 0%, #1a1a3a 100%);
+        }
+
+        .toast.warning {
+            border-left: 4px solid #ffd700;
+            background: linear-gradient(135deg, #3a3a1a 0%, #1a1a3a 100%);
+        }
+
+        .toast-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .toast-content {
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .toast-message {
+            color: #8892b0;
+            font-size: 13px;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: #8892b0;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .toast-close:hover {
+            background: #333366;
+            color: #ffffff;
+        }
+
+        /* Progress bar for toast auto-dismiss */
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00d4aa, #00a3ff);
+            transition: width linear;
         }
 
         /* Request Items */
@@ -827,6 +1096,9 @@
     </style>
 </head>
 <body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+    
     <div class="dashboard">
         <!-- Header -->
         <div class="header">
@@ -927,6 +1199,41 @@
                     </div>
                 </div>
                 <div class="pagination" id="pagination"></div>
+            </div>
+
+            <!-- Email Management Panel -->
+            <div class="content-panel">
+                <div class="panel-header">
+                    <div class="panel-title">📧 Email Management</div>
+                    <button class="btn btn-secondary" onclick="testEmailConfig()" id="testEmailBtn">
+                        Test Email Config
+                    </button>
+                </div>
+                <div class="panel-controls">
+                    <div class="filter-group">
+                        <label class="status">Status Filter:</label>
+                        <select id="emailStatusFilter" class="control-input status">
+                            <option value="all">All Requests</option>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Search:</label>
+                        <input type="text" id="emailSearchInput" class="control-input" placeholder="Search by ID, email, purpose...">
+                    </div>
+                    <button class="btn btn-primary" onclick="loadEmailManagement()">
+                        🔄 Refresh
+                    </button>
+                </div>
+                <div id="emailManagementList">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Loading email management data...
+                    </div>
+                </div>
+                <div class="pagination" id="emailPagination"></div>
             </div>
 
             <!-- Activity Panel -->
@@ -1080,6 +1387,86 @@
     </div>
 
     <script>
+        // Toast Notification System
+        let toastIdCounter = 0;
+
+        function showToast(message, type = 'info', duration = 5000, title = null) {
+            const toastContainer = document.getElementById('toastContainer');
+            const toastId = `toast-${++toastIdCounter}`;
+            
+            // Parse multiline messages
+            const lines = message.split('\\n').filter(line => line.trim());
+            const mainMessage = lines[0];
+            const subMessage = lines.slice(1).join(' ');
+            
+            // Get icon based on type
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.id = toastId;
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type] || icons.info}</div>
+                <div class="toast-content">
+                    ${title ? `<div class="toast-title">${title}</div>` : ''}
+                    <div class="toast-message">${mainMessage}</div>
+                    ${subMessage ? `<div class="toast-message" style="margin-top: 4px; font-size: 12px;">${subMessage}</div>` : ''}
+                </div>
+                <button class="toast-close" onclick="dismissToast('${toastId}')">&times;</button>
+                <div class="toast-progress" style="width: 100%;"></div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Auto dismiss with progress bar
+            if (duration > 0) {
+                const progressBar = toast.querySelector('.toast-progress');
+                progressBar.style.transition = `width ${duration}ms linear`;
+                setTimeout(() => progressBar.style.width = '0%', 50);
+                
+                setTimeout(() => dismissToast(toastId), duration);
+            }
+            
+            return toastId;
+        }
+        
+        function dismissToast(toastId) {
+            const toast = document.getElementById(toastId);
+            if (toast) {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }
+        }
+        
+        // Convenience functions
+        function showSuccess(message, duration = 4000) {
+            return showToast(message, 'success', duration);
+        }
+        
+        function showError(message, duration = 6000) {
+            return showToast(message, 'error', duration);
+        }
+        
+        function showWarning(message, duration = 5000) {
+            return showToast(message, 'warning', duration);
+        }
+        
+        function showInfo(message, duration = 4000) {
+            return showToast(message, 'info', duration);
+        }
+
         let currentPage = 1;
         let totalPages = 1;
         let autoRefreshInterval;
@@ -1531,7 +1918,7 @@
                 
             } catch (error) {
                 console.error('Error loading request details:', error);
-                alert('Failed to load request details. Please try again.');
+                showError('Failed to load request details. Please try again.');
             }
         }
 
@@ -1595,7 +1982,7 @@
                 const result = await response.json();
                 
                 if (response.ok) {
-                    alert(`✅ Status updated successfully to ${newStatus.toUpperCase()}!`);
+                    showSuccess(`Status updated successfully to ${newStatus.toUpperCase()}!`);
                     currentRequestData.status = newStatus;
                     
                     // Update button states
@@ -1618,7 +2005,7 @@
                 
             } catch (error) {
                 console.error('Error updating status:', error);
-                alert('❌ Failed to update status: ' + error.message);
+                showError('Failed to update status: ' + error.message);
                 statusSelect.value = oldStatus; // Revert
             } finally {
                 statusSelect.disabled = false;
@@ -1634,7 +2021,7 @@
             const confirmation = prompt(confirmMessage);
             
             if (confirmation !== 'DELETE') {
-                alert('❌ Delete cancelled. Request not deleted.');
+                showWarning('Delete cancelled. Request not deleted.');
                 return;
             }
             
@@ -1652,7 +2039,7 @@
                 const result = await response.json();
                 
                 if (response.ok) {
-                    alert('✅ Request deleted successfully!');
+                    showSuccess('Request deleted successfully!');
                     closeModal();
                     loadDashboard(); // Refresh the main dashboard
                 } else {
@@ -1661,7 +2048,7 @@
                 
             } catch (error) {
                 console.error('Error deleting request:', error);
-                alert('❌ Failed to delete request: ' + error.message);
+                showError('Failed to delete request: ' + error.message);
             } finally {
                 deleteBtn.innerHTML = originalText;
                 deleteBtn.disabled = false;
@@ -1691,7 +2078,7 @@
                 const result = await response.json();
                 
                 if (response.ok) {
-                    alert('✅ PDF documentation sent successfully to approver!');
+                    showSuccess('PDF documentation sent successfully to approver!');
                 } else {
                     throw new Error(result.error || result.message || 'Failed to send PDF');
                 }
@@ -1712,7 +2099,7 @@
                     errorMessage += '\\n\\n🔧 Email service is not properly configured. Please contact the system administrator.';
                 }
                 
-                alert(errorMessage);
+                showError(errorMessage);
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = currentRequestData?.status === 'pending';
@@ -1742,14 +2129,14 @@
                 const result = await response.json();
                 
                 if (response.ok) {
-                    alert('✅ Retirement notice sent successfully to requester!');
+                    showSuccess('Retirement notice sent successfully to requester!');
                 } else {
                     throw new Error(result.message || 'Failed to send retirement notice');
                 }
                 
             } catch (error) {
                 console.error('Error sending retirement notice:', error);
-                alert('❌ Failed to send retirement notice: ' + error.message);
+                showError('Failed to send retirement notice: ' + error.message);
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = currentRequestData?.status !== 'approved';
@@ -1823,11 +2210,11 @@
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
                 
-                alert(`✅ Data exported successfully as ${format.toUpperCase()}!`);
+                showSuccess(`Data exported successfully as ${format.toUpperCase()}!`);
                 
             } catch (error) {
                 console.error('Export error:', error);
-                alert('❌ Export failed: ' + error.message);
+                showError('Export failed: ' + error.message);
             } finally {
                 // Reset button state
                 const exportBtn = document.querySelector('.export-btn');
@@ -1864,7 +2251,7 @@ ${new Date().toLocaleString()}
             `.trim();
             
             navigator.clipboard.writeText(details).then(() => {
-                alert('✅ Request details copied to clipboard!\\n\\nYou can now paste this information in an email or document to share with the approver.');
+                showSuccess('Request details copied to clipboard!\n\nYou can now paste this information in an email or document to share with the approver.');
             }).catch(err => {
                 console.error('Failed to copy to clipboard:', err);
                 
@@ -1876,9 +2263,276 @@ ${new Date().toLocaleString()}
                 document.execCommand('copy');
                 document.body.removeChild(textarea);
                 
-                alert('✅ Details copied to clipboard!\\n\\n📝 If paste does not work, the details have been selected for you to manually copy.');
+                showSuccess('Details copied to clipboard!\n\n📝 If paste does not work, the details have been selected for you to manually copy.');
             });
         }
+
+        // ============================================
+        // EMAIL MANAGEMENT FUNCTIONS
+        // ============================================
+
+        let emailCurrentPage = 1;
+
+        async function loadEmailManagement(page = 1) {
+            try {
+                emailCurrentPage = page;
+                const status = document.getElementById('emailStatusFilter').value;
+                const search = document.getElementById('emailSearchInput').value;
+                
+                const params = new URLSearchParams({
+                    page: page,
+                    limit: 5,
+                    status: status,
+                    search: search
+                });
+
+                document.getElementById('emailManagementList').innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Loading email management data...
+                    </div>
+                `;
+
+                const response = await fetch(`/api/email-management?${params}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayEmailManagement(data.requests);
+                    displayEmailPagination(data.pagination);
+                } else {
+                    throw new Error(data.error || 'Failed to load email management data');
+                }
+            } catch (error) {
+                console.error('Error loading email management:', error);
+                document.getElementById('emailManagementList').innerHTML = `
+                    <div class="error-message">
+                        ❌ Failed to load email management data: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function displayEmailManagement(requests) {
+            const container = document.getElementById('emailManagementList');
+            
+            if (requests.length === 0) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        📭 No requests found
+                    </div>
+                `;
+                return;
+            }
+
+            const html = requests.map(request => `
+                <div class="email-request-card">
+                    <div class="email-request-header">
+                        <div>
+                            <div class="email-request-title">${request.purpose}</div>
+                            <div class="email-request-id">ID: ${request._id}</div>
+                        </div>
+                        <div class="status-badge status-${request.status}">
+                            ${request.status.toUpperCase()}
+                        </div>
+                    </div>
+                    
+                    <div class="email-info">
+                        <div class="email-info-item">
+                            <div class="email-info-label">Requester</div>
+                            <div class="email-info-value">${request.requester_name}</div>
+                        </div>
+                        <div class="email-info-item">
+                            <div class="email-info-label">Requester Email</div>
+                            <div class="email-info-value">${request.requester_email}</div>
+                        </div>
+                        <div class="email-info-item">
+                            <div class="email-info-label">Approver Email</div>
+                            <div class="email-info-value">${request.approver_email}</div>
+                        </div>
+                        <div class="email-info-item">
+                            <div class="email-info-label">Amount</div>
+                            <div class="email-info-value">${request.amount.toLocaleString()} ${request.currency}</div>
+                        </div>
+                        <div class="email-info-item">
+                            <div class="email-info-label">Time</div>
+                            <div class="email-info-value">${request.requestAge} minutes</div>
+                        </div>
+                        <div class="email-info-item">
+                            <div class="email-info-label">Created</div>
+                            <div class="email-info-value">${new Date(request.created_at).toLocaleString()}</div>
+                        </div>
+                    </div>
+
+                    <div class="email-status-grid">
+                        <div class="email-status-item">
+                            <div class="email-status-label">Initial Approval Email</div>
+                            <div class="email-status-value ${request.emailStatus.initialApprovalSent ? 'email-status-sent' : 'email-status-not-sent'}">
+                                ${request.emailStatus.initialApprovalSent ? '✅ Sent' : '❌ Not Sent'}
+                            </div>
+                        </div>
+                        <div class="email-status-item">
+                            <div class="email-status-label">Confirmation Email</div>
+                            <div class="email-status-value ${request.emailStatus.confirmationSent ? 'email-status-sent' : 'email-status-not-sent'}">
+                                ${request.emailStatus.confirmationSent ? '✅ Sent' : '❌ Not Sent'}
+                            </div>
+                        </div>
+                        <div class="email-status-item">
+                            <div class="email-status-label">Status Notification</div>
+                            <div class="email-status-value ${request.emailStatus.statusNotificationSent ? 'email-status-sent' : 'email-status-not-sent'}">
+                                ${request.emailStatus.statusNotificationSent ? '✅ Sent' : '❌ Not Sent'}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="email-actions">
+                        ${request.emailStatus.needsInitialApproval ? `
+                            <button class="btn btn-primary" onclick="sendApprovalEmail('${request._id}')">
+                                📧 Send Approval Email
+                            </button>
+                        ` : ''}
+                        
+                        ${request.emailStatus.needsConfirmation ? `
+                            <button class="btn btn-success" onclick="sendConfirmationEmail('${request._id}')">
+                                ✉️ Send Confirmation
+                            </button>
+                        ` : ''}
+                        
+                        ${request.emailStatus.needsStatusNotification ? `
+                            <button class="btn btn-warning" onclick="sendStatusEmail('${request._id}')">
+                                📬 Send Status Notification
+                            </button>
+                        ` : ''}
+                        
+                        <button class="btn btn-secondary" onclick="copyApprovalLink('${request.approvalUrl}')">
+                            🔗 Copy Approval Link
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = html;
+        }
+
+        function displayEmailPagination(pagination) {
+            const container = document.getElementById('emailPagination');
+            const { currentPage, totalPages } = pagination;
+            
+            let html = '';
+            
+            if (totalPages > 1) {
+                html += `<button onclick="loadEmailManagement(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>Previous</button>`;
+                
+                for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+                    html += `<button onclick="loadEmailManagement(${i})" ${i === currentPage ? 'class="active"' : ''}>${i}</button>`;
+                }
+                
+                html += `<button onclick="loadEmailManagement(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}>Next</button>`;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        async function sendApprovalEmail(requestId) {
+            await sendEmail(requestId, 'approval', 'Send Approval Email');
+        }
+
+        async function sendConfirmationEmail(requestId) {
+            await sendEmail(requestId, 'confirmation', 'Send Confirmation Email');
+        }
+
+        async function sendStatusEmail(requestId) {
+            const approverName = prompt('Enter approver name (optional):') || 'System';
+            const comments = prompt('Enter comments (optional):') || '';
+            await sendEmail(requestId, 'status', 'Send Status Notification', { approverName, comments });
+        }
+
+        async function sendEmail(requestId, type, buttonText, extraData = {}) {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            
+            try {
+                button.innerHTML = '⏳ Sending...';
+                button.disabled = true;
+
+                const url = `/api/email-management/${requestId}/send-${type}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(extraData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showSuccess(`${result.message}\nRecipient: ${result.recipient}`);
+                    loadEmailManagement(emailCurrentPage); // Refresh the list
+                } else {
+                    throw new Error(result.message || `Failed to send ${type} email`);
+                }
+            } catch (error) {
+                console.error(`Error sending ${type} email:`, error);
+                showError(`Failed to send ${type} email: ${error.message}`);
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+
+        async function testEmailConfig() {
+            const button = document.getElementById('testEmailBtn');
+            const originalText = button.innerHTML;
+            
+            try {
+                button.innerHTML = '⏳ Testing...';
+                button.disabled = true;
+
+                const response = await fetch('/api/email-management/test-config', {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showSuccess(`${result.message}\n\n📧 Configuration:\nHost: ${result.config.host}\nPort: ${result.config.port}\nUser: ${result.config.user}`);
+                } else {
+                    throw new Error(result.message || 'Email configuration test failed');
+                }
+            } catch (error) {
+                console.error('Error testing email config:', error);
+                showError(`Email configuration test failed: ${error.message}`);
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+
+        function copyApprovalLink(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                showSuccess('Approval link copied to clipboard!\n\n🔗 ' + url);
+            }).catch(err => {
+                console.error('Failed to copy link:', err);
+                showError('Failed to copy link to clipboard');
+            });
+        }
+
+        // Initialize email management event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailStatusFilter = document.getElementById('emailStatusFilter');
+            const emailSearchInput = document.getElementById('emailSearchInput');
+            
+            if (emailStatusFilter) {
+                emailStatusFilter.addEventListener('change', () => loadEmailManagement(1));
+            }
+            
+            if (emailSearchInput) {
+                emailSearchInput.addEventListener('input', debounce(() => loadEmailManagement(1), 500));
+            }
+
+            // Load email management data initially
+            loadEmailManagement();
+        });
     </script>
 </body>
 </html>
