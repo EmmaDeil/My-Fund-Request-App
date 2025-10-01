@@ -215,39 +215,51 @@ function connectToMongoDB() {
           process.env.MONGODB_URI.split("@")[1]?.split("/")[0] || "cluster"
         }`
       );
-      
+
       // Start server only after MongoDB connection is established (first time only)
       if (!app.listening) {
         app.listen(PORT, () => {
-          console.log(`🌐 Database Dashboard running on http://localhost:${PORT}`);
+          console.log(
+            `🌐 Database Dashboard running on http://localhost:${PORT}`
+          );
           console.log(`📊 Real-time fund request monitoring active`);
           console.log(`🔗 MongoDB connection established and server ready`);
         });
         app.listening = true;
       } else {
-        console.log(`🔄 MongoDB reconnected - server already running on port ${PORT}`);
+        console.log(
+          `🔄 MongoDB reconnected - server already running on port ${PORT}`
+        );
       }
     })
     .catch((err) => {
       console.error("❌ MongoDB connection error:", err.message);
       console.error("");
       console.error("💡 Common solutions:");
-      console.error("  - Verify MONGODB_URI is correct in environment variables");
-      console.error("  - Check if MongoDB Atlas IP whitelist includes 0.0.0.0/0");
+      console.error(
+        "  - Verify MONGODB_URI is correct in environment variables"
+      );
+      console.error(
+        "  - Check if MongoDB Atlas IP whitelist includes 0.0.0.0/0"
+      );
       console.error("  - Ensure database user has proper permissions");
       console.error("  - Check network connectivity");
 
       // In production, start server even if MongoDB connection fails initially
       if (process.env.NODE_ENV === "production") {
         if (!app.listening) {
-          console.log("⚠️ Starting server without MongoDB connection for health checks");
+          console.log(
+            "⚠️ Starting server without MongoDB connection for health checks"
+          );
           app.listen(PORT, () => {
-            console.log(`🌐 Database Dashboard running on http://localhost:${PORT} (MongoDB disconnected)`);
+            console.log(
+              `🌐 Database Dashboard running on http://localhost:${PORT} (MongoDB disconnected)`
+            );
             console.log(`🔄 Will continue retrying MongoDB connection...`);
           });
           app.listening = true;
         }
-        
+
         console.log("🔄 Retrying MongoDB connection in 10 seconds...");
         setTimeout(() => {
           connectToMongoDB();
@@ -277,12 +289,14 @@ mongoose.connection.on("error", (err) => {
 // Middleware to check MongoDB connection before database operations
 function checkMongoConnection(req, res, next) {
   if (mongoose.connection.readyState !== 1) {
-    console.warn(`⚠️ Database operation attempted while MongoDB disconnected: ${req.path}`);
+    console.warn(
+      `⚠️ Database operation attempted while MongoDB disconnected: ${req.path}`
+    );
     return res.status(503).json({
       error: "Database unavailable",
       message: "MongoDB connection is not ready. Please try again in a moment.",
       status: "service_unavailable",
-      retry_after: 5 // seconds
+      retry_after: 5, // seconds
     });
   }
   next();
@@ -1114,69 +1128,72 @@ app.post("/api/send-pdf-to-approver", async (req, res) => {
 });
 
 // Send retirement notice to requester
-app.post("/api/send-retirement-notice", checkMongoConnection, async (req, res) => {
-  try {
-    const { requestId } = req.body;
+app.post(
+  "/api/send-retirement-notice",
+  checkMongoConnection,
+  async (req, res) => {
+    try {
+      const { requestId } = req.body;
 
-    if (!requestId) {
-      return res.status(400).json({ error: "Request ID is required" });
-    }
+      if (!requestId) {
+        return res.status(400).json({ error: "Request ID is required" });
+      }
 
-    const request = await FundRequest.findById(requestId);
-    if (!request) {
-      return res.status(404).json({ error: "Request not found" });
-    }
+      const request = await FundRequest.findById(requestId);
+      if (!request) {
+        return res.status(404).json({ error: "Request not found" });
+      }
 
-    if (request.status !== "approved") {
-      return res.status(400).json({
-        error: "Can only send retirement notice for approved requests",
-      });
-    }
+      if (request.status !== "approved") {
+        return res.status(400).json({
+          error: "Can only send retirement notice for approved requests",
+        });
+      }
 
-    // Validate email configuration
-    if (
-      !process.env.EMAIL_HOST ||
-      !process.env.EMAIL_USER ||
-      !process.env.EMAIL_PASS
-    ) {
-      console.error("❌ Email service not configured properly");
-      console.error(
-        "📧 EMAIL_HOST:",
-        process.env.EMAIL_HOST ? "✅ SET" : "❌ MISSING"
+      // Validate email configuration
+      if (
+        !process.env.EMAIL_HOST ||
+        !process.env.EMAIL_USER ||
+        !process.env.EMAIL_PASS
+      ) {
+        console.error("❌ Email service not configured properly");
+        console.error(
+          "📧 EMAIL_HOST:",
+          process.env.EMAIL_HOST ? "✅ SET" : "❌ MISSING"
+        );
+        console.error(
+          "📧 EMAIL_USER:",
+          process.env.EMAIL_USER ? "✅ SET" : "❌ MISSING"
+        );
+        console.error(
+          "📧 EMAIL_PASS:",
+          process.env.EMAIL_PASS ? "✅ SET" : "❌ MISSING"
+        );
+
+        return res.status(500).json({
+          error: "Email service not configured",
+          message:
+            "Missing email configuration. Please check EMAIL_HOST, EMAIL_USER, and EMAIL_PASS environment variables.",
+        });
+      }
+
+      console.log(
+        `📧 [Request ID: ${requestId}] Preparing to send retirement notice to: ${request.requester_email}`
       );
-      console.error(
-        "📧 EMAIL_USER:",
-        process.env.EMAIL_USER ? "✅ SET" : "❌ MISSING"
-      );
-      console.error(
-        "📧 EMAIL_PASS:",
-        process.env.EMAIL_PASS ? "✅ SET" : "❌ MISSING"
+      console.log(
+        `📧 Email config - Host: ${process.env.EMAIL_HOST}, Port: ${process.env.EMAIL_PORT}, Secure: ${process.env.EMAIL_SECURE}`
       );
 
-      return res.status(500).json({
-        error: "Email service not configured",
-        message:
-          "Missing email configuration. Please check EMAIL_HOST, EMAIL_USER, and EMAIL_PASS environment variables.",
-      });
-    }
+      // Import EmailService from the main backend
+      const emailServicePath = path.join(__dirname, "./utils/emailService.js");
+      const emailService = require(emailServicePath);
 
-    console.log(
-      `📧 [Request ID: ${requestId}] Preparing to send retirement notice to: ${request.requester_email}`
-    );
-    console.log(
-      `📧 Email config - Host: ${process.env.EMAIL_HOST}, Port: ${process.env.EMAIL_PORT}, Secure: ${process.env.EMAIL_SECURE}`
-    );
-
-    // Import EmailService from the main backend
-    const emailServicePath = path.join(__dirname, "./utils/emailService.js");
-    const emailService = require(emailServicePath);
-
-    // Create retirement email content
-    const retirementEmailOptions = {
-      from: process.env.EMAIL_USER,
-      to: request.requester_email,
-      subject: `💰 Fund Retirement Notice - ${request.purpose}`,
-      html: `
+      // Create retirement email content
+      const retirementEmailOptions = {
+        from: process.env.EMAIL_USER,
+        to: request.requester_email,
+        subject: `💰 Fund Retirement Notice - ${request.purpose}`,
+        html: `
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -1218,8 +1235,8 @@ app.post("/api/send-retirement-notice", checkMongoConnection, async (req, res) =
                         <a href="${
                           process.env.DASHBOARD_URL || "http://localhost:3001"
                         }/retire?token=${request.approval_token}&id=${
-        request._id
-      }" 
+          request._id
+        }" 
                            style="background: linear-gradient(135deg, #28a745, #20c997); 
                                   color: white; 
                                   padding: 15px 30px; 
@@ -1302,56 +1319,64 @@ app.post("/api/send-retirement-notice", checkMongoConnection, async (req, res) =
         </body>
         </html>
       `,
-    };
+      };
 
-    // Send the email using the email service
-    console.log(`📧 [Request ID: ${requestId}] Starting email send process...`);
-    await emailService.sendEmailWithRetry(retirementEmailOptions, 3, requestId);
+      // Send the email using the email service
+      console.log(
+        `📧 [Request ID: ${requestId}] Starting email send process...`
+      );
+      await emailService.sendEmailWithRetry(
+        retirementEmailOptions,
+        3,
+        requestId
+      );
 
-    console.log(
-      `✅ [Request ID: ${requestId}] Retirement notice sent successfully to: ${request.requester_email}`
-    );
-    res.json({
-      message: "Retirement notice sent successfully to requester",
-      requesterEmail: request.requester_email,
-      requestId: requestId,
-    });
-  } catch (error) {
-    console.error(
-      `❌ [Request ID: ${requestId}] Error sending retirement notice:`,
-      error
-    );
+      console.log(
+        `✅ [Request ID: ${requestId}] Retirement notice sent successfully to: ${request.requester_email}`
+      );
+      res.json({
+        message: "Retirement notice sent successfully to requester",
+        requesterEmail: request.requester_email,
+        requestId: requestId,
+      });
+    } catch (error) {
+      console.error(
+        `❌ [Request ID: ${requestId}] Error sending retirement notice:`,
+        error
+      );
 
-    // Provide more specific error response based on error type
-    let errorMessage = error.message;
-    let errorCode = "EMAIL_SEND_FAILED";
+      // Provide more specific error response based on error type
+      let errorMessage = error.message;
+      let errorCode = "EMAIL_SEND_FAILED";
 
-    if (
-      error.message.includes("Connection timeout") ||
-      error.message.includes("ETIMEDOUT")
-    ) {
-      errorCode = "EMAIL_TIMEOUT";
-      errorMessage =
-        "Email service timed out. This may be due to network connectivity or SMTP server issues.";
-    } else if (error.message.includes("EAUTH")) {
-      errorCode = "EMAIL_AUTH_FAILED";
-      errorMessage =
-        "Email authentication failed. Please check email credentials.";
-    } else if (error.message.includes("ECONNECTION")) {
-      errorCode = "EMAIL_CONNECTION_FAILED";
-      errorMessage =
-        "Could not connect to email server. Please check network connectivity.";
+      if (
+        error.message.includes("Connection timeout") ||
+        error.message.includes("ETIMEDOUT")
+      ) {
+        errorCode = "EMAIL_TIMEOUT";
+        errorMessage =
+          "Email service timed out. This may be due to network connectivity or SMTP server issues.";
+      } else if (error.message.includes("EAUTH")) {
+        errorCode = "EMAIL_AUTH_FAILED";
+        errorMessage =
+          "Email authentication failed. Please check email credentials.";
+      } else if (error.message.includes("ECONNECTION")) {
+        errorCode = "EMAIL_CONNECTION_FAILED";
+        errorMessage =
+          "Could not connect to email server. Please check network connectivity.";
+      }
+
+      res.status(500).json({
+        error: "Failed to send retirement notice",
+        message: errorMessage,
+        errorCode: errorCode,
+        requestId: requestId,
+        details:
+          process.env.NODE_ENV === "development" ? error.stack : undefined,
+      });
     }
-
-    res.status(500).json({
-      error: "Failed to send retirement notice",
-      message: errorMessage,
-      errorCode: errorCode,
-      requestId: requestId,
-      details: process.env.NODE_ENV === "development" ? error.stack : undefined,
-    });
   }
-});
+);
 
 // Department breakdown
 app.get("/api/departments", checkMongoConnection, async (req, res) => {
