@@ -199,43 +199,67 @@ if (!process.env.MONGODB_URI) {
   process.exit(1);
 }
 
-mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    maxPoolSize: 10, // Maintain up to 10 socket connections
-    serverSelectionTimeoutMS: 30000, // Keep trying to send operations for 30 seconds
-    socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-    bufferCommands: false, // Disable mongoose buffering
-    bufferMaxEntries: 0, // Disable mongoose buffering
-  })
-  .then(() => {
-    console.log("✅ Connected to MongoDB");
-    console.log(
-      `📊 Dashboard monitoring database: ${
-        process.env.MONGODB_URI.split("@")[1]?.split("/")[0] || "cluster"
-      }`
-    );
-  })
-  .catch((err) => {
-    console.error("❌ MongoDB connection error:", err.message);
-    console.error("");
-    console.error("💡 Common solutions:");
-    console.error("  - Verify MONGODB_URI is correct in environment variables");
-    console.error("  - Check if MongoDB Atlas IP whitelist includes 0.0.0.0/0");
-    console.error("  - Ensure database user has proper permissions");
-    console.error("  - Check network connectivity");
+// MongoDB connection function
+function connectToMongoDB() {
+  return mongoose
+    .connect(process.env.MONGODB_URI, {
+      maxPoolSize: 10, // Maintain up to 10 socket connections
+      serverSelectionTimeoutMS: 30000, // Keep trying to send operations for 30 seconds
+      socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+      bufferCommands: false, // Disable mongoose buffering
+    })
+    .then(() => {
+      console.log("✅ Connected to MongoDB");
+      console.log(
+        `📊 Dashboard monitoring database: ${
+          process.env.MONGODB_URI.split("@")[1]?.split("/")[0] || "cluster"
+        }`
+      );
+      
+      // Start server only after MongoDB connection is established (first time only)
+      if (!app.listening) {
+        app.listen(PORT, () => {
+          console.log(`🌐 Database Dashboard running on http://localhost:${PORT}`);
+          console.log(`📊 Real-time fund request monitoring active`);
+          console.log(`🔗 MongoDB connection established and server ready`);
+        });
+        app.listening = true;
+      } else {
+        console.log(`🔄 MongoDB reconnected - server already running on port ${PORT}`);
+      }
+    })
+    .catch((err) => {
+      console.error("❌ MongoDB connection error:", err.message);
+      console.error("");
+      console.error("💡 Common solutions:");
+      console.error("  - Verify MONGODB_URI is correct in environment variables");
+      console.error("  - Check if MongoDB Atlas IP whitelist includes 0.0.0.0/0");
+      console.error("  - Ensure database user has proper permissions");
+      console.error("  - Check network connectivity");
 
-    // Don't exit in production - retry connection
-    if (process.env.NODE_ENV === "production") {
-      console.log("🔄 Retrying MongoDB connection in 10 seconds...");
-      setTimeout(() => {
-        mongoose.connect(process.env.MONGODB_URI);
-      }, 10000);
-    } else {
-      process.exit(1);
-    }
-  });
+      // In production, start server even if MongoDB connection fails initially
+      if (process.env.NODE_ENV === "production") {
+        if (!app.listening) {
+          console.log("⚠️ Starting server without MongoDB connection for health checks");
+          app.listen(PORT, () => {
+            console.log(`🌐 Database Dashboard running on http://localhost:${PORT} (MongoDB disconnected)`);
+            console.log(`🔄 Will continue retrying MongoDB connection...`);
+          });
+          app.listening = true;
+        }
+        
+        console.log("🔄 Retrying MongoDB connection in 10 seconds...");
+        setTimeout(() => {
+          connectToMongoDB();
+        }, 10000);
+      } else {
+        process.exit(1);
+      }
+    });
+}
+
+// Initialize MongoDB connection
+connectToMongoDB();
 
 // Handle MongoDB connection events
 mongoose.connection.on("disconnected", () => {
@@ -249,6 +273,20 @@ mongoose.connection.on("reconnected", () => {
 mongoose.connection.on("error", (err) => {
   console.error("❌ MongoDB error:", err.message);
 });
+
+// Middleware to check MongoDB connection before database operations
+function checkMongoConnection(req, res, next) {
+  if (mongoose.connection.readyState !== 1) {
+    console.warn(`⚠️ Database operation attempted while MongoDB disconnected: ${req.path}`);
+    return res.status(503).json({
+      error: "Database unavailable",
+      message: "MongoDB connection is not ready. Please try again in a moment.",
+      status: "service_unavailable",
+      retry_after: 5 // seconds
+    });
+  }
+  next();
+}
 
 // Fund Request Schema (matching your main app)
 const fundRequestSchema = new mongoose.Schema({
@@ -743,7 +781,7 @@ function getRetirementPortalHTML(request) {
 }
 
 // API Routes
-app.get("/api/requests", async (req, res) => {
+app.get("/api/requests", checkMongoConnection, async (req, res) => {
   try {
     const {
       page = 1,
@@ -793,7 +831,7 @@ app.get("/api/requests", async (req, res) => {
 });
 
 // Real-time statistics with currency filtering
-app.get("/api/stats", async (req, res) => {
+app.get("/api/stats", checkMongoConnection, async (req, res) => {
   try {
     const { currency } = req.query;
     const filter = currency ? { currency } : {};
@@ -874,7 +912,7 @@ app.get("/api/stats", async (req, res) => {
 });
 
 // Recent activity (last 8 hours)
-app.get("/api/recent", async (req, res) => {
+app.get("/api/recent", checkMongoConnection, async (req, res) => {
   try {
     const eightHoursAgo = new Date(Date.now() - 8 * 60 * 60 * 1000);
     const recent = await FundRequest.find({
@@ -1076,7 +1114,7 @@ app.post("/api/send-pdf-to-approver", async (req, res) => {
 });
 
 // Send retirement notice to requester
-app.post("/api/send-retirement-notice", async (req, res) => {
+app.post("/api/send-retirement-notice", checkMongoConnection, async (req, res) => {
   try {
     const { requestId } = req.body;
 
@@ -1316,7 +1354,7 @@ app.post("/api/send-retirement-notice", async (req, res) => {
 });
 
 // Department breakdown
-app.get("/api/departments", async (req, res) => {
+app.get("/api/departments", checkMongoConnection, async (req, res) => {
   try {
     const departments = await FundRequest.aggregate([
       { $match: { department: { $exists: true, $ne: null, $ne: "" } } },
@@ -1744,7 +1782,7 @@ app.post(
 // ============================================
 
 // Get all requests with email status for dashboard
-app.get("/api/email-management", async (req, res) => {
+app.get("/api/email-management", checkMongoConnection, async (req, res) => {
   try {
     const { page = 1, limit = 20, status, search } = req.query;
 
@@ -2043,12 +2081,6 @@ app.post("/api/email-management/test-config", async (req, res) => {
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-// Start server
-app.listen(PORT, () => {
-  console.log(`🌐 Database Dashboard running on http://localhost:${PORT}`);
-  console.log(`📊 Real-time fund request monitoring active`);
 });
 
 module.exports = app;
