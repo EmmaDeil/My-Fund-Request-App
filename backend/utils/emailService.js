@@ -1,9 +1,7 @@
 const nodemailer = require("nodemailer");
 const {
   createBeautifulApprovalRequestTemplate,
-  createBeautifulApprovalTempl    const approvalUrl = `${
-      process.env.FRONTEND_URL || "https://my-fund-request-app.onrender.com"
-    }/#/approve/${fundRequest.approvalToken}`;,
+  createBeautifulApprovalTemplate,
   createBeautifulDenialTemplate,
 } = require("./beautifulEmailTemplates");
 // Note: Environment variables are loaded in server.js - do not reload here to avoid overriding production config
