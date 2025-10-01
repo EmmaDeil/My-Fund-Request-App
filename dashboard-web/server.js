@@ -1879,7 +1879,7 @@ app.get("/api/email-management", checkMongoConnection, async (req, res) => {
         requestAge: Math.floor(timeSinceCreation / (1000 * 60)), // Age in minutes
         approvalUrl: `${
           process.env.FRONTEND_URL || "https://your-frontend.com"
-        }/approve/${request.approval_token}`,
+        }/#/approve/${request.approval_token}`,
       };
     });
 

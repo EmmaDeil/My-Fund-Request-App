@@ -87,7 +87,7 @@ app.get("/api/health", (req, res) => {
 app.get("/approve/:token", (req, res) => {
   const { token } = req.params;
   const frontendURL = process.env.FRONTEND_URL || "http://localhost:3000";
-  const redirectUrl = `${frontendURL}#/approve/${token}`;
+  const redirectUrl = `${frontendURL}/#/approve/${token}`;
 
   console.log(`🔀 [Backend Redirect] Approval token: ${token}`);
   console.log(`🎯 [Backend Redirect] Redirecting to: ${redirectUrl}`);
