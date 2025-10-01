@@ -1102,10 +1102,19 @@ app.post("/api/send-retirement-notice", async (req, res) => {
       !process.env.EMAIL_PASS
     ) {
       console.error("❌ Email service not configured properly");
-      console.error("📧 EMAIL_HOST:", process.env.EMAIL_HOST ? "✅ SET" : "❌ MISSING");
-      console.error("📧 EMAIL_USER:", process.env.EMAIL_USER ? "✅ SET" : "❌ MISSING");
-      console.error("📧 EMAIL_PASS:", process.env.EMAIL_PASS ? "✅ SET" : "❌ MISSING");
-      
+      console.error(
+        "📧 EMAIL_HOST:",
+        process.env.EMAIL_HOST ? "✅ SET" : "❌ MISSING"
+      );
+      console.error(
+        "📧 EMAIL_USER:",
+        process.env.EMAIL_USER ? "✅ SET" : "❌ MISSING"
+      );
+      console.error(
+        "📧 EMAIL_PASS:",
+        process.env.EMAIL_PASS ? "✅ SET" : "❌ MISSING"
+      );
+
       return res.status(500).json({
         error: "Email service not configured",
         message:
@@ -1113,8 +1122,12 @@ app.post("/api/send-retirement-notice", async (req, res) => {
       });
     }
 
-    console.log(`📧 [Request ID: ${requestId}] Preparing to send retirement notice to: ${request.requester_email}`);
-    console.log(`📧 Email config - Host: ${process.env.EMAIL_HOST}, Port: ${process.env.EMAIL_PORT}, Secure: ${process.env.EMAIL_SECURE}`);
+    console.log(
+      `📧 [Request ID: ${requestId}] Preparing to send retirement notice to: ${request.requester_email}`
+    );
+    console.log(
+      `📧 Email config - Host: ${process.env.EMAIL_HOST}, Port: ${process.env.EMAIL_PORT}, Secure: ${process.env.EMAIL_SECURE}`
+    );
 
     // Import EmailService from the main backend
     const emailServicePath = path.join(__dirname, "./utils/emailService.js");
@@ -1257,30 +1270,41 @@ app.post("/api/send-retirement-notice", async (req, res) => {
     console.log(`📧 [Request ID: ${requestId}] Starting email send process...`);
     await emailService.sendEmailWithRetry(retirementEmailOptions, 3, requestId);
 
-    console.log(`✅ [Request ID: ${requestId}] Retirement notice sent successfully to: ${request.requester_email}`);
+    console.log(
+      `✅ [Request ID: ${requestId}] Retirement notice sent successfully to: ${request.requester_email}`
+    );
     res.json({
       message: "Retirement notice sent successfully to requester",
       requesterEmail: request.requester_email,
       requestId: requestId,
     });
   } catch (error) {
-    console.error(`❌ [Request ID: ${requestId}] Error sending retirement notice:`, error);
-    
+    console.error(
+      `❌ [Request ID: ${requestId}] Error sending retirement notice:`,
+      error
+    );
+
     // Provide more specific error response based on error type
     let errorMessage = error.message;
     let errorCode = "EMAIL_SEND_FAILED";
-    
-    if (error.message.includes("Connection timeout") || error.message.includes("ETIMEDOUT")) {
+
+    if (
+      error.message.includes("Connection timeout") ||
+      error.message.includes("ETIMEDOUT")
+    ) {
       errorCode = "EMAIL_TIMEOUT";
-      errorMessage = "Email service timed out. This may be due to network connectivity or SMTP server issues.";
+      errorMessage =
+        "Email service timed out. This may be due to network connectivity or SMTP server issues.";
     } else if (error.message.includes("EAUTH")) {
       errorCode = "EMAIL_AUTH_FAILED";
-      errorMessage = "Email authentication failed. Please check email credentials.";
+      errorMessage =
+        "Email authentication failed. Please check email credentials.";
     } else if (error.message.includes("ECONNECTION")) {
       errorCode = "EMAIL_CONNECTION_FAILED";
-      errorMessage = "Could not connect to email server. Please check network connectivity.";
+      errorMessage =
+        "Could not connect to email server. Please check network connectivity.";
     }
-    
+
     res.status(500).json({
       error: "Failed to send retirement notice",
       message: errorMessage,
