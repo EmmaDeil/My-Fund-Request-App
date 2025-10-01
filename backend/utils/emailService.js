@@ -125,7 +125,7 @@ class EmailService {
 
     const approvalUrl = `${
       process.env.FRONTEND_URL || "https://my-fund-request-app.onrender.com"
-    }/approve?token=${fundRequest.approvalToken}`;
+    }/#/approve/${fundRequest.approvalToken}`;
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
