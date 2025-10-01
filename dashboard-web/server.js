@@ -924,10 +924,7 @@ app.post("/api/send-pdf-to-approver", async (req, res) => {
     }
 
     // Import EmailService from the main backend
-    const emailServicePath = path.join(
-      __dirname,
-      "../backend/utils/emailService.js"
-    );
+    const emailServicePath = path.join(__dirname, "./utils/emailService.js");
     const emailService = require(emailServicePath);
 
     // Verify email connection first
@@ -1015,10 +1012,7 @@ app.post("/api/send-retirement-notice", async (req, res) => {
     }
 
     // Import EmailService from the main backend
-    const emailServicePath = path.join(
-      __dirname,
-      "../backend/utils/emailService.js"
-    );
+    const emailServicePath = path.join(__dirname, "./utils/emailService.js");
     const emailService = require(emailServicePath);
 
     // Create retirement email content
@@ -1394,7 +1388,7 @@ app.post(
       try {
         const emailServicePath = path.join(
           __dirname,
-          "../backend/utils/emailService.js"
+          "./utils/emailService.js"
         );
         const emailService = require(emailServicePath);
 
@@ -1709,10 +1703,7 @@ app.post("/api/email-management/:requestId/send-approval", async (req, res) => {
     }
 
     // Import EmailService from the main backend
-    const emailServicePath = path.join(
-      __dirname,
-      "../backend/utils/emailService.js"
-    );
+    const emailServicePath = path.join(__dirname, "./utils/emailService.js");
     const emailService = require(emailServicePath);
 
     // Convert request to the format expected by emailService
@@ -1762,10 +1753,7 @@ app.post(
       }
 
       // Import EmailService from the main backend
-      const emailServicePath = path.join(
-        __dirname,
-        "../backend/utils/emailService.js"
-      );
+      const emailServicePath = path.join(__dirname, "./utils/emailService.js");
       const emailService = require(emailServicePath);
 
       // Convert request to the format expected by emailService
@@ -1821,10 +1809,7 @@ app.post("/api/email-management/:requestId/send-status", async (req, res) => {
     }
 
     // Import EmailService from the main backend
-    const emailServicePath = path.join(
-      __dirname,
-      "../backend/utils/emailService.js"
-    );
+    const emailServicePath = path.join(__dirname, "./utils/emailService.js");
     const emailService = require(emailServicePath);
 
     // Convert request to the format expected by emailService
@@ -1872,10 +1857,7 @@ app.post("/api/email-management/:requestId/send-status", async (req, res) => {
 app.post("/api/email-management/test-config", async (req, res) => {
   try {
     // Import EmailService from the main backend
-    const emailServicePath = path.join(
-      __dirname,
-      "../backend/utils/emailService.js"
-    );
+    const emailServicePath = path.join(__dirname, "./utils/emailService.js");
     const emailService = require(emailServicePath);
 
     // Test SMTP connection

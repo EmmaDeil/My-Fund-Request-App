@@ -42,6 +42,20 @@ else
     echo "⚠️  render.yaml missing (optional - can deploy manually)"
 fi
 
+if [ -f "utils/emailService.js" ]; then
+    echo "✅ utils/emailService.js found"
+else
+    echo "❌ utils/emailService.js missing"
+    exit 1
+fi
+
+if [ -f "utils/beautifulEmailTemplates.js" ]; then
+    echo "✅ utils/beautifulEmailTemplates.js found"
+else
+    echo "❌ utils/beautifulEmailTemplates.js missing"
+    exit 1
+fi
+
 # Check package.json scripts
 echo ""
 echo "📦 Checking Package Scripts:"
@@ -69,6 +83,18 @@ else
     echo "❌ Build failed"
     exit 1
 fi
+
+# Test email service import
+echo ""
+echo "📧 Testing Email Service:"
+node -e "
+try { 
+  const emailService = require('./utils/emailService.js'); 
+  console.log('✅ Email service imports successfully'); 
+} catch(e) { 
+  console.error('❌ Email service import failed:', e.message); 
+  process.exit(1); 
+}"
 
 echo ""
 echo "🎉 Dashboard is ready for Render deployment!"

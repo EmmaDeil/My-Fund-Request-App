@@ -159,6 +159,21 @@ SESSION_SECRET=your-secret-key
 # Solution: Render uses PORT=10000, ensure this is set correctly
 ```
 
+#### 5. Nodemailer/Email Service Error (FIXED)
+```bash
+# Error: Cannot find module 'nodemailer'
+# Solution: Dashboard now includes its own nodemailer dependency
+# This issue has been fixed by adding nodemailer to dashboard-web dependencies
+# and copying email service files locally
+```
+
+#### 6. Module Import Errors
+```bash
+# Error: Cannot find module '../backend/utils/emailService.js'
+# Solution: Dashboard now uses local email service files in ./utils/
+# No longer depends on backend directory structure
+```
+
 ### Debug Commands:
 ```bash
 # Check logs in Render dashboard
