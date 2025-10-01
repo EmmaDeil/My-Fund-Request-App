@@ -86,7 +86,9 @@ app.get("/api/health", (req, res) => {
 // Approval redirect fallback - handles direct backend approval links
 app.get("/approve/:token", (req, res) => {
   const { token } = req.params;
-  const frontendURL = process.env.FRONTEND_URL || "http://localhost:3000";
+  const frontendURL = (
+    process.env.FRONTEND_URL || "http://localhost:3000"
+  ).replace(/\/$/, "");
   const redirectUrl = `${frontendURL}/#/approve/${token}`;
 
   console.log(`🔀 [Backend Redirect] Approval token: ${token}`);

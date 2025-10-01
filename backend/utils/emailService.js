@@ -123,9 +123,10 @@ class EmailService {
         ? "HIGH PRIORITY"
         : "NORMAL";
 
-    const approvalUrl = `${
+    const baseUrl = (
       process.env.FRONTEND_URL || "https://my-fund-request-app.onrender.com"
-    }/#/approve/${fundRequest.approvalToken}`;
+    ).replace(/\/$/, "");
+    const approvalUrl = `${baseUrl}/#/approve/${fundRequest.approval_token}`;
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -245,9 +246,10 @@ class EmailService {
     console.log(
       `📧 [Request ID: ${requestData.id}] Approval email to: ${requestData.approver_email}`
     );
-    const approvalUrl = `${
+    const baseUrl = (
       process.env.FRONTEND_URL || "https://my-fund-request-app.onrender.com"
-    }/#/approve/${requestData.approval_token}`;
+    ).replace(/\/$/, "");
+    const approvalUrl = `${baseUrl}/#/approve/${requestData.approval_token}`;
     const formattedAmount = this.formatCurrency(
       requestData.amount,
       requestData.currency
