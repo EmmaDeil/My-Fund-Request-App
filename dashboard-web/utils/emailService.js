@@ -35,7 +35,13 @@ class EmailService {
 
   async verifyConnection() {
     try {
-      await this.transporter.verify();
+      // Add timeout to verification
+      const verifyPromise = this.transporter.verify();
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("SMTP verification timeout")), 30000)
+      );
+
+      await Promise.race([verifyPromise, timeoutPromise]);
       console.log("✅ SMTP email service verified successfully");
       return true;
     } catch (error) {
@@ -43,6 +49,7 @@ class EmailService {
         "❌ SMTP email service verification failed:",
         error.message
       );
+      console.error("💡 Check your email credentials and network connectivity");
       return false;
     }
   }

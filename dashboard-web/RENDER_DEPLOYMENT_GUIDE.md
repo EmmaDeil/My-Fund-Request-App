@@ -174,6 +174,32 @@ SESSION_SECRET=your-secret-key
 # No longer depends on backend directory structure
 ```
 
+#### 7. 502 Bad Gateway Errors (NEW)
+```bash
+# Error: 502 Bad Gateway
+# Causes:
+# - Server crashing on startup
+# - Missing environment variables
+# - MongoDB connection failures
+# Solutions:
+# - Check Render logs for startup errors
+# - Verify all environment variables are set
+# - Test health endpoint: /health
+```
+
+#### 8. Email Service Timeout Errors (NEW)
+```bash
+# Error: Email delivery failed after 3 attempts: Connection timeout
+# Causes:
+# - SMTP server connectivity issues
+# - Incorrect email credentials
+# - Network timeouts in production
+# Solutions:
+# - Verify EMAIL_USER and EMAIL_PASS in Render dashboard
+# - Test env-check endpoint: /env-check
+# - Check email service logs in Render
+```
+
 ### Debug Commands:
 ```bash
 # Check logs in Render dashboard
@@ -197,12 +223,38 @@ npm start
 ## 📊 Post-Deployment Checklist
 
 - [ ] Dashboard loads at your Render URL
+- [ ] Health check endpoint works: `/health`
+- [ ] Environment check endpoint works: `/env-check`
 - [ ] Database connection successful (check logs)
 - [ ] Email management features work
 - [ ] All fund requests display correctly
 - [ ] Toast notifications working
 - [ ] PDF generation functional
 - [ ] No console errors in browser
+- [ ] No 502 or 500 errors in production
+
+### 🔍 Health Check Endpoints:
+
+#### `/health` - Server Health Status
+```json
+{
+  "status": "healthy",
+  "timestamp": "2025-10-01T19:30:00.000Z",
+  "port": 10000,
+  "env": "production",
+  "mongodb": "connected"
+}
+```
+
+#### `/env-check` - Environment Variables Status
+```json
+{
+  "status": "all_set",
+  "missing_variables": [],
+  "set_variables": ["MONGODB_URI", "EMAIL_HOST", "EMAIL_USER", "EMAIL_PASS"],
+  "timestamp": "2025-10-01T19:30:00.000Z"
+}
+```
 
 ## 🚀 Deployment Complete!
 

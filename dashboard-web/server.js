@@ -5,15 +5,82 @@ const path = require("path");
 const PDFDocument = require("pdfkit");
 const multer = require("multer");
 const fs = require("fs");
+
+// Load environment variables
 require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 10000; // Use Render's default port
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// Enhanced middleware for production
+app.use(
+  cors({
+    origin: "*",
+    credentials: true,
+    optionsSuccessStatus: 200,
+  })
+);
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(express.static(path.join(__dirname, "public")));
+
+// Request timeout middleware for production
+app.use((req, res, next) => {
+  res.setTimeout(300000, () => {
+    // 5 minutes timeout
+    console.error("Request timeout for:", req.path);
+    if (!res.headersSent) {
+      res.status(408).json({ error: "Request timeout" });
+    }
+  });
+  next();
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error("Global error handler:", err);
+  if (!res.headersSent) {
+    res.status(500).json({
+      error: "Internal server error",
+      message:
+        process.env.NODE_ENV === "development"
+          ? err.message
+          : "Something went wrong",
+    });
+  }
+});
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    port: PORT,
+    env: process.env.NODE_ENV || "development",
+    mongodb:
+      mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+  });
+});
+
+// Environment check endpoint
+app.get("/env-check", (req, res) => {
+  const requiredEnvs = [
+    "MONGODB_URI",
+    "EMAIL_HOST",
+    "EMAIL_USER",
+    "EMAIL_PASS",
+  ];
+  const missing = requiredEnvs.filter((env) => !process.env[env]);
+
+  res.json({
+    status: missing.length === 0 ? "all_set" : "missing_variables",
+    missing_variables: missing,
+    set_variables: requiredEnvs
+      .filter((env) => process.env[env])
+      .map((env) => env),
+    timestamp: new Date().toISOString(),
+  });
+});
 
 // Retirement portal page
 app.get("/retire", async (req, res) => {
@@ -133,12 +200,20 @@ if (!process.env.MONGODB_URI) {
 }
 
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    maxPoolSize: 10, // Maintain up to 10 socket connections
+    serverSelectionTimeoutMS: 30000, // Keep trying to send operations for 30 seconds
+    socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+    bufferCommands: false, // Disable mongoose buffering
+    bufferMaxEntries: 0, // Disable mongoose buffering
+  })
   .then(() => {
     console.log("✅ Connected to MongoDB");
     console.log(
-      `📊 Dashboard will monitor database: ${
-        process.env.MONGODB_URI.split("@")[1]?.split("/")[0] || "local"
+      `📊 Dashboard monitoring database: ${
+        process.env.MONGODB_URI.split("@")[1]?.split("/")[0] || "cluster"
       }`
     );
   })
@@ -146,12 +221,34 @@ mongoose
     console.error("❌ MongoDB connection error:", err.message);
     console.error("");
     console.error("💡 Common solutions:");
-    console.error("  - Verify MONGODB_URI is correct in .env file");
-    console.error("  - Check if MongoDB service is running (for local)");
-    console.error("  - Verify network access (for MongoDB Atlas)");
-    console.error("  - Check username/password are correct (for Atlas)");
-    process.exit(1);
+    console.error("  - Verify MONGODB_URI is correct in environment variables");
+    console.error("  - Check if MongoDB Atlas IP whitelist includes 0.0.0.0/0");
+    console.error("  - Ensure database user has proper permissions");
+    console.error("  - Check network connectivity");
+
+    // Don't exit in production - retry connection
+    if (process.env.NODE_ENV === "production") {
+      console.log("🔄 Retrying MongoDB connection in 10 seconds...");
+      setTimeout(() => {
+        mongoose.connect(process.env.MONGODB_URI);
+      }, 10000);
+    } else {
+      process.exit(1);
+    }
   });
+
+// Handle MongoDB connection events
+mongoose.connection.on("disconnected", () => {
+  console.warn("⚠️ MongoDB disconnected");
+});
+
+mongoose.connection.on("reconnected", () => {
+  console.log("🔄 MongoDB reconnected");
+});
+
+mongoose.connection.on("error", (err) => {
+  console.error("❌ MongoDB error:", err.message);
+});
 
 // Fund Request Schema (matching your main app)
 const fundRequestSchema = new mongoose.Schema({
