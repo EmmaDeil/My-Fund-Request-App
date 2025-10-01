@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "build": "npm install --production",
     "dev": "nodemon server.js",
     "deploy": "npm install --production && node server.js",
     "test": "node --version && npm --version"

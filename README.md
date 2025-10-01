@@ -39,15 +39,29 @@ MyFundRequestApp/
 ## 🚀 Live Deployment
 
 ### Production URLs
-- **Frontend**: https://my-fund-request-app.onrender.com
-- **Backend API**: https://my-fund-request-app-backend.vercel.app
-- **Dashboard**: Run locally on port 3001 for administration
+- **Frontend**: https://my-fund-request-app.onrender.com (Render Static)
+- **Backend API**: https://my-fund-request-app-backend.vercel.app (Vercel Serverless)
+- **Dashboard**: https://fund-request-dashboard.onrender.com (Render Web Service) 🆕
 
 ### Quick Start for Admins
+
+#### **Option 1: Access Live Dashboard** ⭐ RECOMMENDED
+Visit: https://fund-request-dashboard.onrender.com
+
+#### **Option 2: Run Locally**
 ```bash
-# Start the admin dashboard
+# Start the admin dashboard locally
 cd dashboard-web
 npm install
+npm start
+# Access: http://localhost:3001
+```
+
+#### **Option 3: Deploy Your Own Dashboard**
+```bash
+# Deploy dashboard to Render
+cd dashboard-web
+# See: RENDER_DEPLOYMENT_GUIDE.md for complete setup
 npm start
 # Access: http://localhost:3001
 ```
@@ -261,9 +275,9 @@ Professional responsive templates located in `backend/utils/beautifulEmailTempla
 ## 🚀 **Production Deployment**
 
 ### **Current Live Deployment**
-- **Frontend**: [https://my-fund-request-app.onrender.com](https://my-fund-request-app.onrender.com) (Render)
-- **Backend**: [https://my-fund-request-app-backend.vercel.app](https://my-fund-request-app-backend.vercel.app) (Vercel)
-- **Dashboard**: Local administration interface (security requirement)
+- **Frontend**: [https://my-fund-request-app.onrender.com](https://my-fund-request-app.onrender.com) (Render Static)
+- **Backend**: [https://my-fund-request-app-backend.vercel.app](https://my-fund-request-app-backend.vercel.app) (Vercel Serverless)
+- **Dashboard**: [https://fund-request-dashboard.onrender.com](https://fund-request-dashboard.onrender.com) (Render Web Service) 🆕
 
 ### **Backend Deployment (Vercel Serverless)**
 ```bash
@@ -297,18 +311,25 @@ cd frontend
 - Approval links work universally: `https://domain.com/#/approve/token`
 
 ### **Dashboard Administration**
-The dashboard runs locally for enhanced security and provides:
+The dashboard can be deployed on Render or run locally:
+
+#### **Option 1: Live Dashboard (Render)**
 - Real-time email monitoring and management
 - Request status tracking with toast notifications
 - Manual email retry capabilities for failed deliveries
 - Complete system administration interface
+- Access: https://fund-request-dashboard.onrender.com
 
+#### **Option 2: Local Dashboard**
 ```bash
 cd dashboard-web
 npm install
 npm start
 # Access: http://localhost:3001
 ```
+
+#### **Option 3: Deploy Your Own**
+See `dashboard-web/RENDER_DEPLOYMENT_GUIDE.md` for complete deployment instructions.
 
 ## 🔐 **Security Features**
 
@@ -319,13 +340,14 @@ npm start
 - ✅ **Hash Router Security** - Client-side routing that works everywhere
 - ✅ **Email Security** - Gmail SMTP with app passwords
 - ✅ **Database Security** - MongoDB with proper connection handling
-- ✅ **Local Dashboard** - Admin interface runs locally for enhanced security
+- ✅ **Flexible Dashboard** - Can be deployed on Render or run locally for enhanced security
 
 ## 📚 **Documentation Structure**
 
 ### **System Guides**
 - **Main README.md**: Complete system overview and setup guide
 - **dashboard-web/EMAIL_MANAGEMENT_GUIDE.md**: Dashboard administration guide
+- **dashboard-web/RENDER_DEPLOYMENT_GUIDE.md**: Dashboard deployment on Render 🆕
 - **docs/EMAIL_SYSTEM.md**: Detailed email architecture documentation
 - **docs/legacy/**: Historical development documentation for reference
 
@@ -333,6 +355,7 @@ npm start
 - Comprehensive setup and deployment instructions
 - Email system architecture with Hash Router integration
 - Dashboard administration and email management
+- Dashboard deployment guide for Render platform
 - Troubleshooting guides for common issues
 - Production deployment best practices
 
@@ -421,7 +444,7 @@ node diagnostic.js --environment-check   # Environment validation
 #### **Deployment Architecture**  
 - **Backend**: Vercel serverless with MongoDB Atlas
 - **Frontend**: Render static hosting with SPA routing compatibility
-- **Dashboard**: Local administration for enhanced security
+- **Dashboard**: Render deployment with local option for enhanced security
 - **Monitoring**: Real-time status tracking with toast notifications
 
 ## 🛠️ **Development Workflow & Tools**
