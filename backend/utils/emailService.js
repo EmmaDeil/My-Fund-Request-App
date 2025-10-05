@@ -126,7 +126,7 @@ class EmailService {
     const baseUrl = (
       process.env.FRONTEND_URL || "https://my-fund-request-app.onrender.com"
     ).replace(/\/$/, "");
-    const approvalUrl = `${baseUrl}/approve?token=${fundRequest.approval_token}`;
+    const approvalUrl = `${baseUrl}/#/approve?token=${fundRequest.approval_token}`;
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -249,7 +249,7 @@ class EmailService {
     const baseUrl = (
       process.env.FRONTEND_URL || "https://my-fund-request-app.onrender.com"
     ).replace(/\/$/, "");
-    const approvalUrl = `${baseUrl}/approve?token=${requestData.approval_token}`;
+    const approvalUrl = `${baseUrl}/#/approve?token=${requestData.approval_token}`;
     const formattedAmount = this.formatCurrency(
       requestData.amount,
       requestData.currency
