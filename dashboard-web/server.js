@@ -1588,7 +1588,7 @@ app.get("/api/export", async (req, res) => {
           .fillColor("#ffffff")
           .fontSize(14)
           .font("Helvetica-Bold")
-          .text(`${icon} ${text}`, 60, y + 11);
+          .text(`${text}`, 60, y + 11);
 
         doc.moveDown(1.5);
       };
@@ -1621,9 +1621,9 @@ app.get("/api/export", async (req, res) => {
       // Helper function to add status badge
       const addStatusBadge = (status) => {
         const statusColors = {
-          approved: { bg: "#d4edda", text: "#155724", label: "✓ APPROVED" },
-          rejected: { bg: "#f8d7da", text: "#721c24", label: "✗ REJECTED" },
-          pending: { bg: "#fff3cd", text: "#856404", label: "⏳ PENDING" },
+          approved: { bg: "#d4edda", text: "#155724", label: "APPROVED" },
+          rejected: { bg: "#f8d7da", text: "#721c24", label: "REJECTED" },
+          pending: { bg: "#fff3cd", text: "#856404", label: "PENDING" },
         };
 
         const config =
@@ -1686,19 +1686,19 @@ app.get("/api/export", async (req, res) => {
       });
 
       doc
-        .text("📅 Export Date:", 130, 245, { continued: true })
+        .text("Export Date:", 130, 245, { continued: true })
         .font("Helvetica-Bold")
         .text(` ${reportDate}`, { continued: false });
 
       doc
         .font("Helvetica")
-        .text("📊 Total Records:", 130, 270, { continued: true })
+        .text("Total Records:", 130, 270, { continued: true })
         .font("Helvetica-Bold")
         .text(` ${requests.length}`, { continued: false });
 
       doc
         .font("Helvetica")
-        .text("🔍 Filters Applied:", 130, 295, { continued: true })
+        .text("Filters Applied:", 130, 295, { continued: true })
         .font("Helvetica-Bold");
 
       let filterText = "None";
@@ -1735,7 +1735,7 @@ app.get("/api/export", async (req, res) => {
           .fillColor("#1a1a3a")
           .fontSize(20)
           .font("Helvetica-Bold")
-          .text("📈 EXECUTIVE SUMMARY", 50, 50);
+          .text("EXECUTIVE SUMMARY", 50, 50);
 
         doc
           .moveTo(50, 78)
@@ -1857,7 +1857,7 @@ app.get("/api/export", async (req, res) => {
           .fillColor("#1a1a3a")
           .fontSize(14)
           .font("Helvetica-Bold")
-          .text("💰 Total Amount by Currency", 60, currentY);
+          .text("Total Amount by Currency", 60, currentY);
 
         currentY += 30;
         Object.keys(stats.totalAmount).forEach((currency, idx) => {
@@ -1910,7 +1910,7 @@ app.get("/api/export", async (req, res) => {
         // ============================================
         // REQUESTER INFORMATION
         // ============================================
-        addSectionHeader("REQUESTER INFORMATION", "👤");
+        addSectionHeader("REQUESTER INFORMATION");
 
         addField("Full Name", request.requester_name, { bold: true });
         addField("Email Address", request.requester_email);
@@ -1923,7 +1923,7 @@ app.get("/api/export", async (req, res) => {
         // ============================================
         // REQUEST DETAILS
         // ============================================
-        addSectionHeader("REQUEST DETAILS", "📋");
+        addSectionHeader("REQUEST DETAILS");
 
         addField("Purpose", request.purpose, { bold: true, color: "#1a1a3a" });
 
@@ -1952,7 +1952,7 @@ app.get("/api/export", async (req, res) => {
         // ============================================
         // FINANCIAL INFORMATION
         // ============================================
-        addSectionHeader("FINANCIAL INFORMATION", "💰");
+        addSectionHeader("FINANCIAL INFORMATION");
 
         // Highlighted amount box
         const amountY = doc.y;
@@ -1979,7 +1979,7 @@ app.get("/api/export", async (req, res) => {
         doc.moveDown(3);
 
         addField("Currency", request.currency);
-        addField("Priority", request.urgent ? "🚨 URGENT" : "📌 Normal", {
+        addField("Priority", request.urgent ? "URGENT" : "Normal", {
           bold: request.urgent,
           color: request.urgent ? "#dc3545" : "#28a745",
         });
@@ -1989,7 +1989,7 @@ app.get("/api/export", async (req, res) => {
         // ============================================
         // APPROVAL INFORMATION
         // ============================================
-        addSectionHeader("APPROVAL INFORMATION", "✓");
+        addSectionHeader("APPROVAL INFORMATION");
 
         addField("Approver Email", request.approver_email);
         addField("Current Status", request.status.toUpperCase(), {
@@ -2007,7 +2007,7 @@ app.get("/api/export", async (req, res) => {
         // ============================================
         // TIMELINE INFORMATION
         // ============================================
-        addSectionHeader("TIMELINE", "🕐");
+        addSectionHeader("TIMELINE");
 
         addField(
           "Created",
