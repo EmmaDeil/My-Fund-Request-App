@@ -83,6 +83,28 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// Debug endpoint to check environment configuration
+app.get("/api/debug/config", (req, res) => {
+  const frontendUrl = process.env.FRONTEND_URL || "NOT_SET";
+  const hasTrailingSlash = frontendUrl.endsWith("/");
+  const cleanUrl = frontendUrl.replace(/\/$/, "");
+
+  res.json({
+    version: "query-params-v3",
+    environment: process.env.NODE_ENV || "development",
+    frontendUrl: {
+      raw: frontendUrl,
+      hasTrailingSlash: hasTrailingSlash,
+      cleaned: cleanUrl,
+    },
+    sampleApprovalUrl: `${cleanUrl}/approve?token=SAMPLE-TOKEN-123`,
+    expectedFormat:
+      "https://my-fund-request-app.onrender.com/approve?token=xxx",
+    currentIssue: hasTrailingSlash ? "FRONTEND_URL has trailing slash!" : "OK",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Approval redirect fallback - handles direct backend approval links
 app.get("/approve/:token", (req, res) => {
   const { token } = req.params;
