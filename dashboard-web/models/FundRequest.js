@@ -81,6 +81,31 @@ const fundRequestSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    // Retirement/Expense Document Fields
+    retirement_status: {
+      type: String,
+      enum: ["not_started", "notice_sent", "documents_submitted", "completed"],
+      default: "not_started",
+    },
+    retirement_notice_sent_date: {
+      type: Date,
+    },
+    retirement_documents: [
+      {
+        filename: String,
+        originalName: String,
+        mimetype: String,
+        size: Number,
+        data: String, // Base64 encoded file data
+        uploadDate: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+    retirement_submitted_date: {
+      type: Date,
+    },
   },
   {
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" },

@@ -33,8 +33,8 @@ const frontendURL = (
 ).replace(/\/$/, "");
 
 // Additional frontend URLs for CORS (support multiple environments)
-const additionalOrigins = process.env.ADDITIONAL_CORS_ORIGINS 
-  ? process.env.ADDITIONAL_CORS_ORIGINS.split(',').map(url => url.trim())
+const additionalOrigins = process.env.ADDITIONAL_CORS_ORIGINS
+  ? process.env.ADDITIONAL_CORS_ORIGINS.split(",").map((url) => url.trim())
   : [];
 
 const corsOptions = {
@@ -108,8 +108,7 @@ app.get("/api/debug/config", (req, res) => {
       cleaned: cleanUrl,
     },
     sampleApprovalUrl: `${cleanUrl}/approve?token=SAMPLE-TOKEN-123`,
-    expectedFormat:
-      "https://frapp-c2kh.onrender.com/approve?token=xxx",
+    expectedFormat: "https://frapp-c2kh.onrender.com/approve?token=xxx",
     currentIssue: hasTrailingSlash ? "FRONTEND_URL has trailing slash!" : "OK",
     timestamp: new Date().toISOString(),
   });

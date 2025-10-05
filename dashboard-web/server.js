@@ -450,9 +450,12 @@ function generateRequestPDF(request, status) {
         "This document is generated automatically by the Fund Request Management System.",
         { align: "center" }
       )
-      .text("© 2025 Fund Request Management System - Confidential Document", {
-        align: "center",
-      });
+      .text(
+        `© ${new Date().getFullYear()} Fund Request Management System - Confidential Document`,
+        {
+          align: "center",
+        }
+      );
 
     // Finalize the PDF
     doc.end();
@@ -472,23 +475,8 @@ function getCurrencySymbol(currency) {
   return symbols[currency] || currency;
 }
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, "../uploads");
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(
-      null,
-      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
-    );
-  },
-});
+// Configure multer for file uploads - using memory storage to save to MongoDB
+const storage = multer.memoryStorage(); // Store files in memory, not on disk
 
 const upload = multer({
   storage: storage,
@@ -1331,6 +1319,12 @@ app.post(
         requestId
       );
 
+      // Update request status to indicate retirement notice was sent
+      await FundRequest.findByIdAndUpdate(requestId, {
+        retirement_status: "notice_sent",
+        retirement_notice_sent_date: new Date(),
+      });
+
       console.log(
         `✅ [Request ID: ${requestId}] Retirement notice sent successfully to: ${request.requester_email}`
       );
@@ -1758,18 +1752,29 @@ app.post(
         // Continue even if email fails - don't block the upload
       }
 
-      // Update request status to indicate retirement documents are submitted
+      // Convert files to base64 and store in MongoDB
+      const documentsToStore = files.map((file) => ({
+        filename: `${Date.now()}-${Math.round(Math.random() * 1e9)}-${
+          file.originalname
+        }`,
+        originalName: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size,
+        data: file.buffer.toString("base64"), // Convert buffer to base64 string
+        uploadDate: new Date(),
+      }));
+
+      // Update request with retirement documents stored in MongoDB
       await FundRequest.findByIdAndUpdate(requestId, {
         retirement_status: "documents_submitted",
-        retirement_documents: files.map((file) => ({
-          filename: file.filename,
-          originalName: file.originalname,
-          size: file.size,
-          mimetype: file.mimetype,
-          uploadDate: new Date(),
-        })),
+        retirement_documents: documentsToStore,
+        retirement_submitted_date: new Date(),
         updated_at: new Date(),
       });
+
+      console.log(
+        `✅ Stored ${files.length} documents in MongoDB for request ${requestId}`
+      );
 
       res.json({
         success: true,
@@ -1783,19 +1788,105 @@ app.post(
     } catch (error) {
       console.error("Error processing retirement submission:", error);
 
-      // Clean up uploaded files on error
-      if (req.files) {
-        req.files.forEach((file) => {
-          try {
-            fs.unlinkSync(file.path);
-          } catch (cleanupError) {
-            console.error("Error cleaning up file:", cleanupError);
-          }
-        });
-      }
-
       res.status(500).json({
         error: "Failed to process retirement submission",
+        message: error.message,
+      });
+    }
+  }
+);
+
+// Get retirement documents for a request
+app.get(
+  "/api/retirement-documents/:requestId",
+  checkMongoConnection,
+  async (req, res) => {
+    try {
+      const { requestId } = req.params;
+
+      const request = await FundRequest.findById(requestId).select(
+        "retirement_documents requester_email approver_email"
+      );
+
+      if (!request) {
+        return res.status(404).json({ error: "Request not found" });
+      }
+
+      if (
+        !request.retirement_documents ||
+        request.retirement_documents.length === 0
+      ) {
+        return res
+          .status(404)
+          .json({ error: "No documents found for this request" });
+      }
+
+      // Return document list without the base64 data (for listing)
+      const documentList = request.retirement_documents.map((doc) => ({
+        filename: doc.filename,
+        originalName: doc.originalName,
+        mimetype: doc.mimetype,
+        size: doc.size,
+        uploadDate: doc.uploadDate,
+      }));
+
+      res.json({
+        success: true,
+        requestId: requestId,
+        documents: documentList,
+      });
+    } catch (error) {
+      console.error("Error fetching retirement documents:", error);
+      res.status(500).json({
+        error: "Failed to fetch documents",
+        message: error.message,
+      });
+    }
+  }
+);
+
+// Download a specific retirement document
+app.get(
+  "/api/retirement-documents/:requestId/:filename",
+  checkMongoConnection,
+  async (req, res) => {
+    try {
+      const { requestId, filename } = req.params;
+
+      const request = await FundRequest.findById(requestId).select(
+        "retirement_documents"
+      );
+
+      if (!request) {
+        return res.status(404).json({ error: "Request not found" });
+      }
+
+      // Find the specific document
+      const document = request.retirement_documents.find(
+        (doc) => doc.filename === filename
+      );
+
+      if (!document) {
+        return res.status(404).json({ error: "Document not found" });
+      }
+
+      // Convert base64 back to buffer
+      const fileBuffer = Buffer.from(document.data, "base64");
+
+      // Set appropriate headers
+      res.setHeader("Content-Type", document.mimetype);
+      res.setHeader("Content-Length", fileBuffer.length);
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${document.originalName}"`
+      );
+
+      // Send the file
+      res.send(fileBuffer);
+    } catch (error) {
+      console.error("Error downloading document:", error);
+      res.status(500).json({
+        error: "Failed to download document",
         message: error.message,
       });
     }

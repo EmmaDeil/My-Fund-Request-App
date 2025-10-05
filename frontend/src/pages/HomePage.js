@@ -86,7 +86,7 @@ const HomePage = () => {
         {/* Help Section */}
         <div className="card">
           <h3>❓ Need Help?</h3>
-          <div className="row">
+          <div className="row" style={{ paddingLeft: "1rem", paddingRight: "10px" }}>
             <div className="col-2">
               <h4>Required Information</h4>
               <ul style={{ lineHeight: "1.8" }}>
