@@ -5,9 +5,19 @@ const path = require("path");
 const PDFDocument = require("pdfkit");
 const multer = require("multer");
 const fs = require("fs");
+const cookieParser = require("cookie-parser");
+const session = require("express-session");
 
 // Load environment variables
 require("dotenv").config();
+
+// Import authentication middleware
+const {
+  authenticateToken,
+  verifyCredentials,
+  generateToken,
+  checkAuth,
+} = require("./middleware/auth");
 
 const app = express();
 const PORT = process.env.PORT || 10000; // Use Render's default port
@@ -22,7 +32,34 @@ app.use(
 );
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use(cookieParser());
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "fund-request-dashboard-secret-key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  })
+);
 app.use(express.static(path.join(__dirname, "public")));
+
+// Protect all API routes except auth and public endpoints
+app.use("/api/", (req, res, next) => {
+  // Allow auth routes and retire/submit-retirement endpoints
+  if (
+    req.path.startsWith("/auth/") ||
+    req.path === "/submit-retirement" ||
+    req.path.startsWith("/retirement-documents/")
+  ) {
+    return next();
+  }
+  // All other API routes require authentication
+  authenticateToken(req, res, next);
+});
 
 // Request timeout middleware for production
 app.use((req, res, next) => {
@@ -82,7 +119,88 @@ app.get("/env-check", (req, res) => {
   });
 });
 
-// Retirement portal page
+// ============================================
+// AUTHENTICATION ROUTES
+// ============================================
+
+// Login page (public)
+app.get("/login", (req, res) => {
+  // If already logged in, redirect to dashboard
+  const user = checkAuth(req);
+  if (user) {
+    return res.redirect("/");
+  }
+  res.sendFile(path.join(__dirname, "public", "login.html"));
+});
+
+// Login API endpoint
+app.post("/api/auth/login", async (req, res) => {
+  try {
+    const { username, password, remember } = req.body;
+
+    if (!username || !password) {
+      return res
+        .status(400)
+        .json({ error: "Username and password are required" });
+    }
+
+    // Verify credentials
+    const user = await verifyCredentials(username, password);
+
+    if (!user) {
+      return res.status(401).json({ error: "Invalid username or password" });
+    }
+
+    // Generate JWT token
+    const token = generateToken(user);
+
+    // Set token in cookie
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: remember ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000, // 7 days or 24 hours
+    };
+
+    res.cookie("token", token, cookieOptions);
+
+    // Also set user in session
+    req.session.user = user;
+
+    console.log(`✅ User logged in: ${username}`);
+
+    res.json({
+      success: true,
+      message: "Login successful",
+      user: {
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ error: "Login failed. Please try again." });
+  }
+});
+
+// Logout endpoint
+app.post("/api/auth/logout", (req, res) => {
+  res.clearCookie("token");
+  req.session.destroy();
+  res.json({ success: true, message: "Logged out successfully" });
+});
+
+// Check auth status
+app.get("/api/auth/status", (req, res) => {
+  const user = checkAuth(req);
+  if (user) {
+    res.json({ authenticated: true, user });
+  } else {
+    res.json({ authenticated: false });
+  }
+});
+
+// Retirement portal page (public - requires token in URL)
 app.get("/retire", async (req, res) => {
   try {
     const { token, id } = req.query;
@@ -2195,7 +2313,8 @@ app.post("/api/email-management/test-config", async (req, res) => {
   }
 });
 
-app.get("/", (req, res) => {
+// Dashboard homepage (protected)
+app.get("/", authenticateToken, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
