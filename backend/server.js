@@ -31,12 +31,21 @@ const PORT =
 const frontendURL = (
   process.env.FRONTEND_URL || "http://localhost:3000"
 ).replace(/\/$/, "");
+
+// Additional frontend URLs for CORS (support multiple environments)
+const additionalOrigins = process.env.ADDITIONAL_CORS_ORIGINS 
+  ? process.env.ADDITIONAL_CORS_ORIGINS.split(',').map(url => url.trim())
+  : [];
+
 const corsOptions = {
   origin: [
     frontendURL,
     `${frontendURL}/`, // Handle trailing slash variations
     "http://localhost:3000",
     "http://localhost:3000/",
+    "https://frapp-c2kh.onrender.com", // New Render frontend
+    "https://frapp-c2kh.onrender.com/",
+    ...additionalOrigins,
   ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -44,6 +53,7 @@ const corsOptions = {
 };
 
 console.log(`🌐 CORS configured for: ${frontendURL} (and variants)`);
+console.log(`🌐 Additional CORS origins:`, additionalOrigins);
 app.use(cors(corsOptions));
 
 // Body parsing middleware
