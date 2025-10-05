@@ -1547,61 +1547,542 @@ app.get("/api/export", async (req, res) => {
       .lean();
 
     if (format === "pdf") {
-      // PDF Export
+      // PDF Export - Professional Document Style
       const PDFDocument = require("pdfkit");
-      const doc = new PDFDocument({ margin: 50 });
+      const doc = new PDFDocument({
+        margin: 50,
+        size: "A4",
+        bufferPages: true,
+        info: {
+          Title: "Fund Requests Report",
+          Author: "Fund Request Dashboard",
+          Subject: "Fund Requests Export",
+          Keywords: "fund requests, export, report",
+        },
+      });
 
       // Set response headers for PDF
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename="fund-requests-${Date.now()}.pdf"`
+        `attachment; filename="fund-requests-report-${Date.now()}.pdf"`
       );
 
       // Pipe the PDF to response
       doc.pipe(res);
 
-      // Add title
-      doc.fontSize(20).text("Fund Requests Export", { align: "center" });
-      doc.moveDown();
+      // Helper function to draw a colored box
+      const drawBox = (x, y, width, height, color, radius = 5) => {
+        doc
+          .roundedRect(x, y, width, height, radius)
+          .fillAndStroke(color, "#cccccc")
+          .stroke();
+      };
 
-      // Add metadata
-      doc.fontSize(12).text(`Export Date: ${new Date().toLocaleString()}`, {
-        align: "right",
+      // Helper function to add a section header
+      const addSectionHeader = (text, icon = "") => {
+        const y = doc.y;
+        doc.roundedRect(50, y, 495, 35, 5).fillAndStroke("#1a1a3a", "#1a1a3a");
+
+        doc
+          .fillColor("#ffffff")
+          .fontSize(14)
+          .font("Helvetica-Bold")
+          .text(`${icon} ${text}`, 60, y + 11);
+
+        doc.moveDown(1.5);
+      };
+
+      // Helper function to add a labeled field with nice formatting
+      const addField = (label, value, options = {}) => {
+        const y = doc.y;
+        const leftMargin = options.indent ? 70 : 60;
+
+        // Label
+        doc
+          .fillColor("#666666")
+          .fontSize(9)
+          .font("Helvetica-Bold")
+          .text(label + ":", leftMargin, y, { continued: false });
+
+        // Value
+        doc
+          .fillColor(options.color || "#000000")
+          .fontSize(10)
+          .font(options.bold ? "Helvetica-Bold" : "Helvetica")
+          .text(value, leftMargin + 120, y, {
+            width: 365,
+            align: "left",
+          });
+
+        doc.moveDown(0.6);
+      };
+
+      // Helper function to add status badge
+      const addStatusBadge = (status) => {
+        const statusColors = {
+          approved: { bg: "#d4edda", text: "#155724", label: "✓ APPROVED" },
+          rejected: { bg: "#f8d7da", text: "#721c24", label: "✗ REJECTED" },
+          pending: { bg: "#fff3cd", text: "#856404", label: "⏳ PENDING" },
+        };
+
+        const config =
+          statusColors[status.toLowerCase()] || statusColors.pending;
+        const x = 400;
+        const y = doc.y;
+
+        doc.roundedRect(x, y - 2, 145, 20, 3).fill(config.bg);
+
+        doc
+          .fillColor(config.text)
+          .fontSize(10)
+          .font("Helvetica-Bold")
+          .text(config.label, x + 5, y + 2, {
+            width: 135,
+            align: "center",
+          });
+      };
+
+      // ============================================
+      // COVER PAGE
+      // ============================================
+
+      // Header with gradient effect (simulated with rectangles)
+      doc.rect(0, 0, 612, 180).fill("#1a1a3a");
+      doc.rect(0, 140, 612, 40).fill("#2d2d5f");
+
+      // Title
+      doc
+        .fillColor("#ffffff")
+        .fontSize(32)
+        .font("Helvetica-Bold")
+        .text("FUND REQUESTS", 50, 50, { align: "center" });
+
+      doc.fontSize(28).text("EXPORT REPORT", 50, 90, { align: "center" });
+
+      // Decorative line
+      doc
+        .moveTo(200, 135)
+        .lineTo(412, 135)
+        .lineWidth(2)
+        .strokeColor("#00d4aa")
+        .stroke();
+
+      // Report metadata box
+      doc.y = 220;
+      doc
+        .roundedRect(100, 220, 412, 120, 8)
+        .fillAndStroke("#f8f9fa", "#dee2e6");
+
+      doc.fillColor("#1a1a3a").fontSize(12).font("Helvetica");
+
+      const reportDate = new Date().toLocaleString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
       });
-      doc.text(`Total Records: ${requests.length}`, { align: "right" });
-      doc.moveDown();
 
-      // Add data
+      doc
+        .text("📅 Export Date:", 130, 245, { continued: true })
+        .font("Helvetica-Bold")
+        .text(` ${reportDate}`, { continued: false });
+
+      doc
+        .font("Helvetica")
+        .text("📊 Total Records:", 130, 270, { continued: true })
+        .font("Helvetica-Bold")
+        .text(` ${requests.length}`, { continued: false });
+
+      doc
+        .font("Helvetica")
+        .text("🔍 Filters Applied:", 130, 295, { continued: true })
+        .font("Helvetica-Bold");
+
+      let filterText = "None";
+      if (status || currency || search) {
+        const filters = [];
+        if (status) filters.push(`Status: ${status}`);
+        if (currency) filters.push(`Currency: ${currency}`);
+        if (search) filters.push(`Search: "${search}"`);
+        filterText = filters.join(", ");
+      }
+      doc.text(` ${filterText}`, { continued: false, width: 350 });
+
+      // Footer on cover page
+      doc
+        .fillColor("#666666")
+        .fontSize(10)
+        .font("Helvetica")
+        .text("Generated by Fund Request Dashboard", 50, 750, {
+          align: "center",
+        })
+        .text("Confidential - For Internal Use Only", 50, 765, {
+          align: "center",
+        });
+
+      // ============================================
+      // SUMMARY PAGE
+      // ============================================
+
+      if (requests.length > 0) {
+        doc.addPage();
+
+        // Page title
+        doc
+          .fillColor("#1a1a3a")
+          .fontSize(20)
+          .font("Helvetica-Bold")
+          .text("📈 EXECUTIVE SUMMARY", 50, 50);
+
+        doc
+          .moveTo(50, 78)
+          .lineTo(545, 78)
+          .lineWidth(2)
+          .strokeColor("#00d4aa")
+          .stroke();
+
+        doc.moveDown(2);
+
+        // Calculate statistics
+        const stats = {
+          total: requests.length,
+          approved: requests.filter((r) => r.status === "approved").length,
+          rejected: requests.filter((r) => r.status === "rejected").length,
+          pending: requests.filter((r) => r.status === "pending").length,
+          urgent: requests.filter((r) => r.urgent).length,
+          totalAmount: {},
+        };
+
+        // Calculate total amounts by currency
+        requests.forEach((r) => {
+          if (!stats.totalAmount[r.currency]) {
+            stats.totalAmount[r.currency] = 0;
+          }
+          stats.totalAmount[r.currency] += r.amount;
+        });
+
+        // Statistics boxes
+        const boxWidth = 115;
+        const boxHeight = 80;
+        const startX = 60;
+        let currentY = 110;
+
+        // Row 1 - Status Distribution
+        // Approved
+        doc
+          .roundedRect(startX, currentY, boxWidth, boxHeight, 5)
+          .fillAndStroke("#d4edda", "#c3e6cb");
+        doc
+          .fillColor("#155724")
+          .fontSize(28)
+          .font("Helvetica-Bold")
+          .text(stats.approved.toString(), startX, currentY + 15, {
+            width: boxWidth,
+            align: "center",
+          });
+        doc
+          .fontSize(11)
+          .font("Helvetica")
+          .text("Approved", startX, currentY + 50, {
+            width: boxWidth,
+            align: "center",
+          });
+
+        // Rejected
+        doc
+          .roundedRect(startX + 130, currentY, boxWidth, boxHeight, 5)
+          .fillAndStroke("#f8d7da", "#f5c6cb");
+        doc
+          .fillColor("#721c24")
+          .fontSize(28)
+          .font("Helvetica-Bold")
+          .text(stats.rejected.toString(), startX + 130, currentY + 15, {
+            width: boxWidth,
+            align: "center",
+          });
+        doc
+          .fontSize(11)
+          .font("Helvetica")
+          .text("Rejected", startX + 130, currentY + 50, {
+            width: boxWidth,
+            align: "center",
+          });
+
+        // Pending
+        doc
+          .roundedRect(startX + 260, currentY, boxWidth, boxHeight, 5)
+          .fillAndStroke("#fff3cd", "#ffeaa7");
+        doc
+          .fillColor("#856404")
+          .fontSize(28)
+          .font("Helvetica-Bold")
+          .text(stats.pending.toString(), startX + 260, currentY + 15, {
+            width: boxWidth,
+            align: "center",
+          });
+        doc
+          .fontSize(11)
+          .font("Helvetica")
+          .text("Pending", startX + 260, currentY + 50, {
+            width: boxWidth,
+            align: "center",
+          });
+
+        // Urgent
+        doc
+          .roundedRect(startX + 390, currentY, boxWidth, boxHeight, 5)
+          .fillAndStroke("#f8d7da", "#f5c6cb");
+        doc
+          .fillColor("#721c24")
+          .fontSize(28)
+          .font("Helvetica-Bold")
+          .text(stats.urgent.toString(), startX + 390, currentY + 15, {
+            width: boxWidth,
+            align: "center",
+          });
+        doc
+          .fontSize(11)
+          .font("Helvetica")
+          .text("Urgent", startX + 390, currentY + 50, {
+            width: boxWidth,
+            align: "center",
+          });
+
+        // Total Amount Summary
+        currentY += 110;
+        doc
+          .fillColor("#1a1a3a")
+          .fontSize(14)
+          .font("Helvetica-Bold")
+          .text("💰 Total Amount by Currency", 60, currentY);
+
+        currentY += 30;
+        Object.keys(stats.totalAmount).forEach((currency, idx) => {
+          const amount = stats.totalAmount[currency];
+          doc
+            .roundedRect(60, currentY + idx * 45, 485, 38, 5)
+            .fillAndStroke("#e9ecef", "#dee2e6");
+
+          doc
+            .fillColor("#495057")
+            .fontSize(12)
+            .font("Helvetica-Bold")
+            .text(currency, 80, currentY + idx * 45 + 12);
+
+          doc
+            .fillColor("#1a1a3a")
+            .fontSize(16)
+            .font("Helvetica-Bold")
+            .text(amount.toLocaleString(), 200, currentY + idx * 45 + 10, {
+              align: "right",
+              width: 320,
+            });
+        });
+      }
+
+      // ============================================
+      // DETAILED REQUESTS PAGES
+      // ============================================
+
       requests.forEach((request, index) => {
-        if (index > 0) doc.addPage();
+        doc.addPage();
 
-        doc.fontSize(14).text(`Request #${index + 1}`, { underline: true });
+        // Page header with request number
+        doc.roundedRect(50, 40, 495, 40, 5).fillAndStroke("#f8f9fa", "#dee2e6");
+
+        doc
+          .fillColor("#1a1a3a")
+          .fontSize(16)
+          .font("Helvetica-Bold")
+          .text(`Request #${index + 1} of ${requests.length}`, 65, 52);
+
+        // Status badge in header
+        doc.save();
+        doc.y = 52;
+        addStatusBadge(request.status);
+        doc.restore();
+
+        doc.y = 95;
+
+        // ============================================
+        // REQUESTER INFORMATION
+        // ============================================
+        addSectionHeader("REQUESTER INFORMATION", "👤");
+
+        addField("Full Name", request.requester_name, { bold: true });
+        addField("Email Address", request.requester_email);
+        if (request.department) {
+          addField("Department", request.department);
+        }
+
         doc.moveDown(0.5);
 
-        doc.fontSize(10);
-        doc.text(`Requester: ${request.requester_name}`);
-        doc.text(`Email: ${request.requester_email}`);
-        doc.text(`Approver: ${request.approver_email}`);
-        doc.text(`Purpose: ${request.purpose}`);
-        if (request.description)
-          doc.text(`Description: ${request.description}`);
-        doc.text(
-          `Amount: ${request.currency} ${request.amount.toLocaleString()}`
+        // ============================================
+        // REQUEST DETAILS
+        // ============================================
+        addSectionHeader("REQUEST DETAILS", "📋");
+
+        addField("Purpose", request.purpose, { bold: true, color: "#1a1a3a" });
+
+        if (request.description) {
+          const y = doc.y;
+          doc
+            .fillColor("#666666")
+            .fontSize(9)
+            .font("Helvetica-Bold")
+            .text("Description:", 60, y);
+
+          doc
+            .fillColor("#000000")
+            .fontSize(10)
+            .font("Helvetica")
+            .text(request.description, 60, y + 15, {
+              width: 485,
+              align: "justify",
+            });
+
+          doc.moveDown(1);
+        }
+
+        doc.moveDown(0.5);
+
+        // ============================================
+        // FINANCIAL INFORMATION
+        // ============================================
+        addSectionHeader("FINANCIAL INFORMATION", "💰");
+
+        // Highlighted amount box
+        const amountY = doc.y;
+        doc
+          .roundedRect(60, amountY, 485, 50, 5)
+          .fillAndStroke("#e7f3ff", "#b3d9ff");
+
+        doc
+          .fillColor("#004085")
+          .fontSize(11)
+          .font("Helvetica-Bold")
+          .text("REQUESTED AMOUNT", 80, amountY + 10);
+
+        doc
+          .fillColor("#002752")
+          .fontSize(22)
+          .font("Helvetica-Bold")
+          .text(
+            `${request.currency} ${request.amount.toLocaleString()}`,
+            80,
+            amountY + 26
+          );
+
+        doc.moveDown(3);
+
+        addField("Currency", request.currency);
+        addField("Priority", request.urgent ? "🚨 URGENT" : "📌 Normal", {
+          bold: request.urgent,
+          color: request.urgent ? "#dc3545" : "#28a745",
+        });
+
+        doc.moveDown(0.5);
+
+        // ============================================
+        // APPROVAL INFORMATION
+        // ============================================
+        addSectionHeader("APPROVAL INFORMATION", "✓");
+
+        addField("Approver Email", request.approver_email);
+        addField("Current Status", request.status.toUpperCase(), {
+          bold: true,
+          color:
+            request.status === "approved"
+              ? "#28a745"
+              : request.status === "rejected"
+              ? "#dc3545"
+              : "#ffc107",
+        });
+
+        doc.moveDown(0.5);
+
+        // ============================================
+        // TIMELINE INFORMATION
+        // ============================================
+        addSectionHeader("TIMELINE", "🕐");
+
+        addField(
+          "Created",
+          new Date(request.created_at).toLocaleString("en-US", {
+            weekday: "short",
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })
         );
-        doc.text(`Status: ${request.status.toUpperCase()}`);
-        doc.text(`Urgent: ${request.urgent ? "Yes" : "No"}`);
-        if (request.department) doc.text(`Department: ${request.department}`);
-        doc.text(`Created: ${new Date(request.created_at).toLocaleString()}`);
-        if (request.approved_at)
-          doc.text(
-            `Approved: ${new Date(request.approved_at).toLocaleString()}`
+
+        if (request.approved_at) {
+          addField(
+            "Approved",
+            new Date(request.approved_at).toLocaleString("en-US", {
+              weekday: "short",
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            { color: "#28a745" }
           );
-        if (request.rejected_at)
-          doc.text(
-            `Rejected: ${new Date(request.rejected_at).toLocaleString()}`
+        }
+
+        if (request.rejected_at) {
+          addField(
+            "Rejected",
+            new Date(request.rejected_at).toLocaleString("en-US", {
+              weekday: "short",
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            { color: "#dc3545" }
           );
+        }
+
+        // ============================================
+        // FOOTER WITH METADATA
+        // ============================================
+        doc
+          .fontSize(8)
+          .fillColor("#999999")
+          .font("Helvetica")
+          .text(`Document ID: ${request._id}`, 50, 750)
+          .text(`Page ${index + 3} of ${requests.length + 2}`, 50, 760, {
+            align: "right",
+          });
       });
+
+      // ============================================
+      // ADD PAGE NUMBERS TO ALL PAGES
+      // ============================================
+      const pages = doc.bufferedPageRange();
+      for (let i = 0; i < pages.count; i++) {
+        doc.switchToPage(i);
+
+        // Skip page numbers on cover page
+        if (i === 0) continue;
+
+        doc
+          .fontSize(8)
+          .fillColor("#999999")
+          .font("Helvetica")
+          .text(`Page ${i + 1} of ${pages.count}`, 50, 760, {
+            align: "center",
+            width: 495,
+          });
+      }
 
       doc.end();
     } else if (format === "excel") {
