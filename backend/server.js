@@ -99,7 +99,7 @@ app.get("/api/debug/config", (req, res) => {
     },
     sampleApprovalUrl: `${cleanUrl}/approve?token=SAMPLE-TOKEN-123`,
     expectedFormat:
-      "https://my-fund-request-app.onrender.com/approve?token=xxx",
+      "https://frapp-c2kh.onrender.com/approve?token=xxx",
     currentIssue: hasTrailingSlash ? "FRONTEND_URL has trailing slash!" : "OK",
     timestamp: new Date().toISOString(),
   });
