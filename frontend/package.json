@@ -8,18 +8,22 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.12.2",
+    "express": "^4.18.2",
     "html2pdf.js": "^0.12.1",
     "jspdf": "^3.0.3",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.2",
     "react-scripts": "5.0.1",
+    "serve": "^14.2.3",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "build:prod": "REACT_APP_API_URL=https://backend-o0ll.onrender.com/api react-scripts build",
+    "serve": "serve -s build -l $PORT",
+    "serve:express": "node server.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
