@@ -126,7 +126,7 @@ class EmailService {
     const baseUrl = (
       process.env.FRONTEND_URL || "https://my-fund-request-app.onrender.com"
     ).replace(/\/$/, "");
-    const approvalUrl = `${baseUrl}/#/approve/${fundRequest.approval_token}`;
+    const approvalUrl = `${baseUrl}/approve?token=${fundRequest.approval_token}`;
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -249,7 +249,7 @@ class EmailService {
     const baseUrl = (
       process.env.FRONTEND_URL || "https://my-fund-request-app.onrender.com"
     ).replace(/\/$/, "");
-    const approvalUrl = `${baseUrl}/#/approve/${requestData.approval_token}`;
+    const approvalUrl = `${baseUrl}/approve?token=${requestData.approval_token}`;
     const formattedAmount = this.formatCurrency(
       requestData.amount,
       requestData.currency
@@ -299,7 +299,7 @@ class EmailService {
             body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background-color: #0d131aff; }
           </style>
         </head>
-        <body style="margin: 0; padding: 0; background-color: #0d131aff; font-family: 'Inter', sans-serif;">
+        <body style="margin: 0; padding: 0; background-color: #dee6eeff; font-family: 'Inter', sans-serif;">
           <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
             
             <!-- Header -->

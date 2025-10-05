@@ -54,7 +54,7 @@ const createBeautifulApprovalRequestTemplate = (
     .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
   </style>
 </head>
-<body style="margin: 0; padding: 0; background-color: #0d131aff; font-family: 'Inter', sans-serif;">
+<body style="margin: 0; padding: 0; background-color: #dbe1e8ff; font-family: 'Inter', sans-serif;">
   <div class="container" style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
     
     <!-- Header -->

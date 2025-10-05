@@ -276,9 +276,9 @@ const FundRequestForm = ({ onSubmissionSuccess }) => {
                 onChange={handleInputChange}
                 className={`form-control ${errors.amount ? "error" : ""}`}
                 placeholder="0.00"
-                min="0.00"
+                min="0.01"
                 max="10000000.00"
-                step="0.00"
+                step="0.01"
                 disabled={isSubmitting}
               />
               {errors.amount && (
