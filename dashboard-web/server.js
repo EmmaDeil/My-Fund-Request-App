@@ -9,7 +9,10 @@ const cookieParser = require("cookie-parser");
 const session = require("express-session");
 
 // Load environment variables
-require("dotenv").config();
+// Load .env.production in production, .env otherwise
+const envFile =
+  process.env.NODE_ENV === "production" ? ".env.production" : ".env";
+require("dotenv").config({ path: envFile });
 
 // Import authentication middleware
 const {
